@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8">
+	<title>订单详情</title>
+	<link rel="stylesheet" th:href="@{/component/pear/css/pear.css}" />
+</head>
+<body class="pear-container">
+<div class="layui-card">
+	<div class="layui-card-body">
+		<table id="user-table" lay-filter="user-table"></table>
+	</div>
+</div>
+
+<script th:src="@{/component/layui/layui.js}"></script>
+<script th:src="@{/component/pear/pear.js}"></script>
+<script>
+	layui.use(['table', 'form', 'jquery','common'], function() {
+		let table = layui.table;
+		let form = layui.form;
+		let $ = layui.jquery;
+		let common = layui.common;
+
+		let cols = [
+			[
+				{
+					title: '菜品名称',
+					field: 'name',
+					align: 'center',
+					width: 120
+				},
+				{
+					title: '计量单位',
+					field: 'unit',
+					align: 'center',
+					width: 100
+				},
+				{
+					title: '数量',
+					field: 'weight',
+					align: 'center',
+					width: 100
+				},
+				{
+					title: '价格',
+					field: 'price',
+					align: 'center',
+					width: 100
+				},
+				{
+					title: '总计',
+					field: 'totalPrice',
+					align: 'center',
+					width: 120
+				},
+				{
+					title: '下单时间',
+					field: 'createTime',
+					align: 'center',
+					width: 180
+				}
+			]
+		]
+
+		table.render({
+			elem: '#user-table',
+			url: '/order/boPage',
+			page: true,
+			parseData:function(res) {
+				return {
+					"code" : 0,
+					"msg" : "",
+					"count" : res.data.total,
+					"data": res.data.records
+				}
+			},
+			cols: cols,
+			skin: 'line',
+			limits: [20, 30],
+			toolbar: '#user-toolbar',
+			defaultToolbar: [{
+				title: '刷新',
+				layEvent: 'refresh',
+				icon: 'layui-icon-refresh',
+			}, 'filter', 'print', 'exports']
+		});
+
+		window.refresh = function(param) {
+			table.reload('user-table');
+		}
+	})
+</script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>菜品详情</title>
+    <link rel="icon" sizes="192x192" th:href="@{/frontStatic/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/frontStatic/css/font-awesome.min.css}">  <!-- 头部样式 -->
+    <link rel="stylesheet" th:href="@{/frontStatic/css/main.css}">
+    <link rel="stylesheet" th:href="@{/frontStatic/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/frontStatic/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/frontStatic/css/style.css}">
+    <link rel="stylesheet" th:href="@{/frontStatic/css/shopdetail.css}">
+    <script type="text/javascript" th:src="@{/frontStatic/js/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/frontStatic/css/bootstrap/js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/frontStatic/js/front/sort.js}"></script>
+    <script type="text/javascript" th:src="@{/frontStatic/js/detail.js}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var showproduct = {
+                "boxid": "showbox",
+                "sumid": "showsum",
+                "boxw": 400,
+                "boxh": 550,
+                "sumw": 60, //列表每个宽度,该版本中请把宽高填写成一样
+                "sumh": 60, //列表每个高度,该版本中请把宽高填写成一样
+                "sumi": 7, //列表间隔
+                "sums": 5, //列表显示个数
+                "sumsel": "sel",
+                "sumborder": 1, //列表边框，没有边框填写0，边框在css中修改
+                "lastid": "showlast",
+                "nextid": "shownext"
+            };
+            //方法调用detail.js
+            $.ljsGlasses.pcGlasses(showproduct);
+
+            $("#weight").blur(function (){
+                var num = $("#weight").val();
+                if (num <= 0 || num > 9) {
+                    $(this).val(1);
+                }
+            });
+
+            $("#formSubmit").click(function (){
+                var name = $("#name").val();
+                var unit = $("#unit").val();
+                var price = $("#price").val();
+                var picture = $("#picture").val();
+                var weight = $("#weight").val();
+                var data = {
+                    "name": name,
+                    "unit": unit,
+                    "price": price,
+                    "picture": picture,
+                    "weight": weight
+                }
+                $.ajax({
+                   url: '/shopCart/add',
+                   data: JSON.stringify(data),
+                   dataType: 'json',
+                   contentType: 'application/json',
+                   type: 'post',
+                   success: function(result) {
+                       if (result.code === 200) {
+                           alert(result.data);
+                       } else {
+                           alert(result.msg);
+                       }
+                   }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+<div class="elavator_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4" role="navigation">
+            </div>
+            <div class="col-md-8">
+                <ul class="nav nav-pills pull-right">
+                    <li><a th:href="@{/front/toShopCart}"> <i
+                            class="fa fa-shopping-cart" style="color: #F22E00"></i>
+                        购物车
+                    </a></li>
+                    <li class="info-a">
+                        <a th:href="@{/front/toInfo}" style="color: #F22E00" th:text="${session.currUser.name}">
+                            name
+                            <span class="glyphicon glyphicon-triangle-bottom" style="font-size: 5px;margin-left: 7px;" aria-hidden="true">
+            </span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a th:href="@{/front/toInfo}">账户管理</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a th:href="@{/front/logout}" class="login-out">退出登录</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div id="header-nav">
+            <nav class="navbar navbar-default" id="header-nav-middle">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed"
+                                data-toggle="collapse"
+                                data-target="#bs-example-navbar-collapse-1"
+                                aria-expanded="false">
+                            <span class="sr-only">Toggle navigation</span> <span
+                                class="icon-bar"></span> <span class="icon-bar"></span> <span
+                                class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" th:href="@{/front/toMain}"><span class="logo-word">My Canteen</span></a>
+                    </div>
+
+                    <div class="collapse navbar-collapse"
+                         id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav">
+                            <li><a class="a-color" th:href="@{/front/toMain}">首页</a></li>
+                            <li><a class="a-color" th:href="@{/front/toOrder}">我的订单</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="shop_menu shop_menu_2 main-detail-div">
+            <ul class="cramb_area cramb_area_5 main-detail-nav">
+                <li><a th:href="@{/front/toMain}">首页 /</a></li>
+                <li class="br-active" th:text="${session.menuDetail.name}">菜品</li>
+            </ul>
+        </div>
+        <div class="row">
+            <div class="col-lg-5 col-md-5 col-sm-12 col-xs-12">
+                <div class="shopdetails">
+                    <div id="leftbox">
+                        <div id="showbox">
+                            <img th:src="|/picture/${session.menuDetail.picture}|" width="400" height="400" alt=""/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <div class="elav_titel">
+                    <div class="elv_heading">
+                        <h3 th:text="${session.menuDetail.name}">菜品</h3>
+                    </div>
+                    <div class="price_rating">
+                    </div>
+                </div>
+                <div class="elav_info">
+                    <div class="price_box price_box_acr new_meta">
+                        <span class="spical-price spical-price-2" th:text="'￥' + ${session.menuDetail.price}">￥00.00</span>
+                    </div>
+                    <div class="new_meta">
+                        <span class="sku_wrapper big-font">
+                            类别:
+                            <span class="sku" th:text="${session.menuDetail.category}">无</span>
+                        </span>
+                        <span class="sku_wrapper big-font">
+                            计量单位:
+                            <span class="sku" th:text="${session.menuDetail.unit}">无</span>
+                        </span>
+                    </div>
+                    <div class="rel-div">
+                        <form class="cart-btn-area new_meta">
+                            <input type="hidden" id="name" name="name" th:value="${session.menuDetail.name}"/>
+                            <input type="hidden" id="unit" name="unit" th:value="${session.menuDetail.unit}"/>
+                            <input type="hidden" id="price" name="price" th:value="${session.menuDetail.price}"/>
+                            <input type="hidden" id="picture" name="picture" th:value="${session.menuDetail.picture}"/>
+                            <input type="number" value="1" name="weight" id="weight">
+                            <button class="add-tocart cart_zpf" type="button" id="formSubmit">加入购物车</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+

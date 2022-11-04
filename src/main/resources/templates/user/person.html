@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8">
+	<title>个人信息</title>
+	<link rel="stylesheet" th:href="@{/component/pear/css/pear.css}" />
+	<link rel="stylesheet" th:href="@{/admin/css/other/person.css}" />
+</head>
+<body class="pear-container">
+	<div class="layui-row layui-col-space10">
+		<div class="layui-col-md3">
+			<div class="layui-card">
+				<div class="layui-card-body" style="padding-top: 210px; padding-bottom: 205px">
+					<div class="text-center layui-text">
+						<div class="user-info-head" id="userInfoHead">
+							<img th:src="@{/admin/images/avatar.jpg}" id="userAvatar" width="115px" height="115px" alt="头像">
+						</div>
+						<h2 style="padding-top: 20px;font-size: 20px;" th:text="${session.currUser.name}">name</h2>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="layui-col-md9">
+			<div class="layui-card">
+				<div class="layui-card-header">
+					个人信息
+				</div>
+				<div class="layui-card-body" style="padding-top: 100px; padding-left: 300px; padding-bottom: 110px">
+					<form class="layui-form layui-form-pane" action="">
+						<div class="layui-form-item">
+							<label class="layui-form-label">用户名</label>
+							<div class="layui-input-inline">
+								<input type="text" name="username" th:value="${session.currUser.username}" disabled="disabled" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">性别</label>
+							<div class="layui-input-inline">
+								<input type="text" name="username" th:value="${session.currUser.sex}" disabled="disabled" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">电话</label>
+							<div class="layui-input-inline">
+								<input type="text" name="username" th:value="${session.currUser.telephone}" disabled="disabled" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">部门</label>
+							<div class="layui-input-inline">
+								<input type="text" name="username" th:value="${session.currUser.department}" disabled="disabled" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">角色</label>
+							<div class="layui-input-inline" th:switch="${session.currUser.role}">
+								<input th:case="manager" type="text" name="username" value="食堂经理" disabled="disabled" autocomplete="off" class="layui-input">
+								<input th:case="chef" type="text" name="username" value="食堂大厨" disabled="disabled" autocomplete="off" class="layui-input">
+								<input th:case="caterer" type="text" name="username" value="配送员" disabled="disabled" autocomplete="off" class="layui-input">
+								<input th:case="treasurer" type="text" name="username" value="财务管理" disabled="disabled" autocomplete="off" class="layui-input">
+								<input th:case="staff" type="text" name="username" value="员工" disabled="disabled" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<button type="button" id="updatePwd" class="layui-btn layui-btn-radius">修改密码</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script th:src="@{/component/layui/layui.js}"></script>
+	<script th:src="@{/component/pear/pear.js}"></script>
+	<script>
+		layui.use(['jquery','common'], function() {
+			let $ = layui.jquery;
+			let common = layui.common;
+
+			$("#updatePwd").click(function () {
+				window.update()
+			});
+
+			window.update = function () {
+				layer.open({
+					type: 2,
+					title: '修改密码',
+					shade: 0.1,
+					area: [common.isModile() ? '100%' : '500px', common.isModile() ? '100%' : '400px'],
+					content: '/back/toUpdatePwd'
+				});
+			}
+		});
+	</script>
+</body>
+</html>

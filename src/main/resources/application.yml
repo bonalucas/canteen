@@ -1,0 +1,27 @@
+# 服务端口号
+server:
+  port: 8888
+
+# 服务名
+spring:
+  application:
+    name: canteen
+  datasource:
+    url: jdbc:oracle:thin:@127.0.0.1:1521:orcl
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+    username: root
+    password: 123456
+  thymeleaf:
+    cache: false  #开发阶段设置为 false ，上线后设置为 true
+    prefix: classpath:/templates/   # 设置模版文件的路径，前缀
+    suffix: .html # 设置后缀
+    mode: HTML  # 设置模版的类型
+
+mybatis-plus:
+  configuration:
+    #关闭驼峰映射
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: ASSIGN_ID

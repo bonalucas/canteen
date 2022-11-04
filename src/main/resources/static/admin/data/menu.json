@@ -1,0 +1,88 @@
+[
+	{
+		"id": 0,
+		"title": "个人信息",
+		"icon": "layui-icon layui-icon-home",
+		"type": 1,
+		"href": "/back/toPerson"
+	},
+	{
+		"id": 1,
+		"title": "用户管理",
+		"icon": "layui-icon layui-icon-username",
+		"type": 1,
+		"href": "/back/toUser"
+	},
+	{
+		"id": 2,
+		"title": "食谱管理",
+		"icon": "layui-icon layui-icon-set",
+		"type": 1,
+		"href": "/back/toRecipe"
+	},
+	{
+		"id": 3,
+		"title": "菜单管理",
+		"icon": "layui-icon layui-icon-tabs",
+		"type": 0,
+		"children": [
+			{
+				"id": 301,
+				"title": "挑选菜单",
+				"type": 1,
+				"openType": "_iframe",
+				"href": "/back/toAddMenu"
+			},
+			{
+				"id": 302,
+				"title": "本周菜单",
+				"type": 1,
+				"openType": "_iframe",
+				"href": "/back/toMenu"
+			},
+			{
+				"id": 303,
+				"title": "历史菜单",
+				"type": 1,
+				"openType": "_iframe",
+				"href": "/back/toHistoryMenu"
+			}
+		]
+	},
+	{
+		"id": 4,
+		"title": "订单进度",
+		"icon": "layui-icon layui-icon-form",
+		"type": 0,
+		"children": [
+			{
+				"id": 401,
+				"title": "正在出餐",
+				"type": 1,
+				"openType": "_iframe",
+				"href": "/back/toNoMeal"
+			},
+			{
+				"id": 402,
+				"title": "正在配送",
+				"type": 1,
+				"openType": "_iframe",
+				"href": "/back/toUndelivered"
+			},
+			{
+				"id": 403,
+				"title": "已完成",
+				"type": 1,
+				"openType": "_iframe",
+				"href": "/back/toCompleted"
+			}
+		]
+	},
+	{
+		"id": 5,
+		"title": "月度销售",
+		"icon": "pear-icon pear-icon-data-view",
+		"type": 1,
+		"href": "/back/toSale"
+	}
+]

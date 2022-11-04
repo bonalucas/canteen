@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link th:href="@{/component/pear/css/pear.css}" rel="stylesheet" />
+		<link th:href="@{/admin/css/other/error.css}" rel="stylesheet" />
+	</head>
+	<body>
+		<div class="content">
+			<img th:src="@{/admin/images/403.svg}" alt="">
+			<div class="content-r">
+				<h1>403</h1>
+				<p>抱歉，你无权访问该页面</p>
+			</div>
+		</div>
+		<script th:src="@{/component/layui/layui.js}"></script>
+		<script th:src="@{/component/pear/pear.js}"></script>
+	</body>
+</html>

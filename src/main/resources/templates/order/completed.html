@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>已完成</title>
+    <link rel="stylesheet" th:href="@{/component/pear/css/pear.css}" />
+</head>
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <div class="layui-form-item" style="padding-left: 20px">
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">用户昵称</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="name" placeholder="请输入昵称" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">月份</label>
+                    <div class="layui-input-inline">
+                        <select name="orderTime">
+                            <option value="">请选择月份</option>
+                            <option th:value="${#dates.year(#dates.createNow())} + '-01-01'">一月</option>
+                            <option th:value="${#dates.year(#dates.createNow())} + '-02-01'">二月</option>
+                            <option th:value="${#dates.year(#dates.createNow())} + '-03-01'">三月</option>
+                            <option th:value="${#dates.year(#dates.createNow())} + '-04-01'">四月</option>
+                            <option th:value="${#dates.year(#dates.createNow())} + '-05-01'">五月</option>
+                            <option th:value="${#dates.year(#dates.createNow())} + '-06-01'">六月</option>
+                            <option th:value="${#dates.year(#dates.createNow())} + '-07-01'">七月</option>
+                            <option th:value="${#dates.year(#dates.createNow())} + '-08-01'">八月</option>
+                            <option th:value="${#dates.year(#dates.createNow())} + '-09-01'">九月</option>
+                            <option th:value="${#dates.year(#dates.createNow())} + '-10-01'">十月</option>
+                            <option th:value="${#dates.year(#dates.createNow())} + '-11-01'">十一月</option>
+                            <option th:value="${#dates.year(#dates.createNow())} + '-12-01'">十二月</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="user-query">
+                        <i class="layui-icon layui-icon-search"></i>
+                        查询
+                    </button>
+                    <button type="reset" class="pear-btn pear-btn-md">
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        重置
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-body">
+        <table id="user-table" lay-filter="user-table"></table>
+    </div>
+</div>
+
+<script type="text/html" id="user-bar">
+    <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit">详情</button>
+</script>
+
+<script th:src="@{/component/layui/layui.js}"></script>
+<script th:src="@{/component/pear/pear.js}"></script>
+<script>
+    layui.use(['table', 'form', 'jquery','common'], function() {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        let common = layui.common;
+
+        let cols = [
+            [
+                {
+                    title: '订单编号',
+                    field: 'orderId',
+                    align: 'center',
+                    width: 150
+                },
+                {
+                    title: '用户名',
+                    field: 'name',
+                    align: 'center',
+                    width: 100
+                },
+                {
+                    title: '电话',
+                    field: 'telephone',
+                    align: 'center',
+                    width: 120
+                },
+                {
+                    title: '下单时间',
+                    field: 'orderTime',
+                    align: 'center',
+                    width: 160
+                },
+                {
+                    title: '订单金额',
+                    field: 'orderPrice',
+                    align: 'center',
+                    width: 120
+                },
+                {
+                    title: '操作',
+                    toolbar: '#user-bar',
+                    align: 'center',
+                    width: 120
+                }
+            ]
+        ]
+
+        table.render({
+            elem: '#user-table',
+            url: '/order/page/2',
+            page: true,
+            parseData:function(res) {
+                return {
+                    "code" : 0,
+                    "msg" : "",
+                    "count" : res.data.total,
+                    "data": res.data.records
+                }
+            },
+            cols: cols,
+            skin: 'line',
+            limits: [10, 20],
+            toolbar: '#user-toolbar',
+            defaultToolbar: [{
+                title: '刷新',
+                layEvent: 'refresh',
+                icon: 'layui-icon-refresh',
+            }, 'filter', 'print', 'exports']
+        });
+
+        table.on('tool(user-table)', function(obj) {
+            if (obj.event === 'edit') {
+                window.edit(obj);
+            }
+        });
+
+        window.edit = function(obj) {
+            layer.open({
+                type: 2,
+                title: '订单详情',
+                shade: 0.1,
+                area: ['800px', '400px'],
+                content: '/back/toDetails/' + obj.data['orderId']
+            });
+        }
+
+        form.on('submit(user-query)', function(data) {
+            table.reload('user-table', {
+                where: data.field
+            })
+            return false;
+        });
+
+        window.refresh = function(param) {
+            table.reload('user-table');
+        }
+    })
+</script>
+</body>
+</html>

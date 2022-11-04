@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>修改菜品页面</title>
+		<link rel="stylesheet" th:href="@{/component/pear/css/pear.css}" />
+	</head>
+	<body>
+		<form class="layui-form" action="">
+			<div class="mainBox">
+				<div class="main-container">
+					<div class="layui-form-item">
+						<label class="layui-form-label">账号</label>
+						<div class="layui-input-block">
+							<input type="text" name="username" autocomplete="off" placeholder="请输入用户名"
+								   class="layui-input" th:value="${session.editUser.username}">
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">昵称</label>
+						<div class="layui-input-block">
+							<input type="text" name="name" autocomplete="off" placeholder="请输入昵称"
+								   class="layui-input" th:value="${session.editUser.name}">
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">性别</label>
+						<div class="layui-input-block">
+							<select name="sex">
+								<option value="男" th:selected="${session.editUser.sex == '男'}">男</option>
+								<option value="女" th:selected="${session.editUser.sex == '女'}">女</option>
+							</select>
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">电话</label>
+						<div class="layui-input-block">
+							<input type="text" name="telephone" autocomplete="off" placeholder="请输入电话"
+								   class="layui-input" th:value="${session.editUser.telephone}">
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">部门</label>
+						<div class="layui-input-block">
+							<select name="department">
+								<option value="财务部" th:selected="${session.editUser.department == '财务部'}">财务部</option>
+								<option value="技术部" th:selected="${session.editUser.department == '技术部'}">技术部</option>
+								<option value="营销部" th:selected="${session.editUser.department == '营销部'}">营销部</option>
+								<option value="生产部" th:selected="${session.editUser.department == '生产部'}">生产部</option>
+							</select>
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">角色</label>
+						<div class="layui-input-block">
+							<select name="role">
+								<option value="manager" th:selected="${session.editUser.role == 'manager'}">食堂经理</option>
+								<option value="chef" th:selected="${session.editUser.role == 'chef'}">厨房大厨</option>
+								<option value="caterer" th:selected="${session.editUser.role == 'caterer'}">配餐员</option>
+								<option value="treasurer" th:selected="${session.editUser.role == 'treasurer'}">财务管理</option>
+								<option value="staff" th:selected="${session.editUser.role == 'staff'}">企业员工</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="bottom">
+				<div class="button-container">
+					<button type="submit" class="pear-btn pear-btn-primary pear-btn-sm" lay-submit=""
+						lay-filter="user-save">
+						<i class="layui-icon layui-icon-ok"></i>
+						提交
+					</button>
+					<button type="reset" class="pear-btn pear-btn-sm">
+						<i class="layui-icon layui-icon-refresh"></i>
+						重置
+					</button>
+				</div>
+			</div>
+		</form>
+		<script th:src="@{/component/layui/layui.js}"></script>
+		<script th:src="@{/component/pear/pear.js}"></script>
+		<script>
+			layui.use(['form', 'jquery'], function() {
+				let form = layui.form;
+				let $ = layui.jquery;
+
+				form.on('submit(user-save)', function(data) {
+					$.ajax({
+						url: '/user/update',
+						data: JSON.stringify(data.field),
+						dataType: 'json',
+						contentType: 'application/json',
+						type: 'put',
+						success: function(result) {
+							if (result.code === 200) {
+								layer.msg(result.data, {
+									icon: 1,
+									time: 1000
+								}, function() {
+									parent.layer.close(parent.layer.getFrameIndex(window
+										.name)); //关闭当前页
+									parent.layui.table.reload("user-table");
+								});
+							} else {
+								layer.msg(result.msg, {
+									icon: 2,
+									time: 1000
+								});
+							}
+						}
+					})
+					return false;
+				});
+			})
+		</script>
+		<script>
+		</script>
+	</body>
+</html>

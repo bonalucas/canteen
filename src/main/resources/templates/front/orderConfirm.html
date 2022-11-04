@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>确认订单</title>
+    <link rel="icon" sizes="192x192" th:href="@{/frontStatic/image/logo.png}">
+    <link rel="stylesheet" th:href="@{/frontStatic/css/main.css}">
+    <link rel="stylesheet" th:href="@{/frontStatic/css/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/frontStatic/css/shopcart.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/frontStatic/css/sweetalert.css}">
+    <link rel="stylesheet" th:href="@{/frontStatic/css/order.css}">
+    <script type="text/javascript" th:src="@{/frontStatic/css/bootstrap/js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/frontStatic/js/holder.js}"></script>
+    <script type="text/javascript" th:src="@{/frontStatic/js/sweetalert.min.js}"></script>
+    <script type="text/javascript" th:src="@{/frontStatic/js/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/frontStatic/js/front/sort.js}"></script>
+    <script type="text/javascript" th:src="@{/frontStatic/js/front/order.js}"></script>
+</head>
+<body>
+<div id="main" class="container">
+    <div class="row">
+        <div class="col-md-4" role="navigation">
+        </div>
+        <div class="col-md-8">
+            <ul class="nav nav-pills pull-right">
+                <li><a th:href="@{/front/toShopCart}"> <i
+                        class="fa fa-shopping-cart" style="color: #F22E00"></i>
+                    购物车
+                </a></li>
+                <li class="info-a">
+                    <a th:href="@{/front/toInfo}" style="color: #F22E00" th:text="${session.currUser.name}">
+                        name
+                        <span class="glyphicon glyphicon-triangle-bottom" style="font-size: 5px;margin-left: 7px;" aria-hidden="true">
+            </span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a th:href="@{/front/toInfo}">账户管理</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a th:href="@{/front/logout}" class="login-out">退出登录</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="header-nav">
+        <nav class="navbar navbar-default" id="header-nav-middle">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed"
+                            data-toggle="collapse"
+                            data-target="#bs-example-navbar-collapse-1"
+                            aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span> <span
+                            class="icon-bar"></span> <span class="icon-bar"></span> <span
+                            class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" th:href="@{/front/toMain}"><span class="logo-word">My Canteen</span></a>
+                </div>
+
+                <div class="collapse navbar-collapse"
+                     id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li><a class="a-color" th:href="@{/front/toMain}">首页</a></li>
+                        <li><a class="a-color" th:href="@{/front/toOrder}">我的订单</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+</div>
+<div class="shopping_cart">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="account_heading account_heading_ah">
+                    <h1 class="header-border">确认订单</h1>
+                </div>
+            </div>
+        </div>
+        <h4 class="header-border h4-mar-2">确认订单信息</h4>
+        <div class="row">
+            <div class="all_wis_frm">
+                <div class="col-md-12">
+                    <div class="wishlist-content wishlist-content-2">
+
+                        <div class="wishlist-table wishlist-table-2 table-responsive">
+                            <table id="cart-table">
+                                <thead>
+                                <tr>
+                                    <th class="product-thumbnail product-thumbnail-2">
+                                        <span class="nobr">图片</span>
+                                    </th>
+                                    <th class="product-name product-name_2">
+                                        <span class="nobr">菜品</span>
+                                    </th>
+                                    <th class="product-price">
+                                        <span class="nobr">计量单位</span>
+                                    </th>
+                                    <th class="product-price">
+                                        <span class="nobr">价格</span>
+                                    </th>
+                                    <th class="product-stock-stauts">
+                                        <span class="nobr">数量</span>
+                                    </th>
+                                    <th class="product-add-to-cart">
+                                        <span class="nobr">总价</span>
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="sc:${session.shopCartList}">
+                                        <td class="product-thumbnail product-thumbnail-2"><img
+                                                th:src="@{|/picture/${sc.picture}|}"
+                                                alt=""/></td>
+                                        <td class="product-name product-name_2" th:text="${sc.name}">无</td>
+                                        <td class="product-price" th:text="${sc.unit}">无</td>
+                                        <td class="product-price"><span th:text="'￥' + ${sc.price}"
+                                                class="amount-list amount-list-2">￥00.00</span></td>
+                                        <td class="product-stock-status">
+                                            <div class="latest_es_from_2">
+                                                <span th:text="${sc.weight}">无</span>
+                                            </div>
+                                        </td>
+                                        <td class="product-price"><span th:text="'￥' + ${sc.totalPrice}"
+                                                class="amount-list amount-list-2">￥00.00</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-5 col-xs-12 form-group form-group-lg">
+                            </div>
+                            <div class="col-md-6 col-md-offset-1 col-xs-12">
+                                <div class="cart_totals">
+                                    <h2>总价</h2>
+                                    <table class="shop_table shop_table_responsive">
+                                        <tbody>
+                                        <tr class="cart-subtotal">
+                                            <th>个数总计</th>
+                                            <td data-title="Subtotal"><span
+                                                    class="woocommerce-Price-amount amount"><span
+                                                    class="woocommerce-Price-currencySymbol"
+                                                    id="total-old"
+                                                    th:text="${session.totalWeight}">无
+                                            </span>
+													</span></td>
+                                        </tr>
+                                        <tr class="order-total">
+                                            <th>实付款</th>
+                                            <td data-title="Total"><strong> <span
+                                                    class="woocommerce-Price-amount amount">￥<span
+                                                    class="woocommerce-Price-currencySymbol"
+                                                    id="total-new"
+                                                    th:text="${session.totalPrice}">无</span>
+														</span>
+                                            </strong></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                    <div class="wc-proceed-to-checkout">
+                                        <button id="confirm-orders"
+                                                class="button_act button_act-tc confirm-orders pull-right" >结算
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

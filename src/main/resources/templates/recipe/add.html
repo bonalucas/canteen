@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>新增菜品窗口</title>
+		<link rel="stylesheet" th:href="@{/component/pear/css/pear.css}" />
+	</head>
+	<body>
+		<form class="layui-form" action="">
+			<div class="mainBox">
+				<div class="main-container">
+					<div class="layui-form-item">
+						<label class="layui-form-label">菜品名称</label>
+						<div class="layui-input-block">
+							<input type="text" name="name" autocomplete="off" placeholder="请输入菜品名称"
+								class="layui-input">
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">分类</label>
+						<div class="layui-input-block">
+							<select name="category">
+								<option value="菜肴">菜肴</option>
+								<option value="甜点">甜点</option>
+								<option value="主食">主食</option>
+								<option value="饮品">饮品</option>
+							</select>
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">计量单位</label>
+						<div class="layui-input-block">
+							<select name="unit">
+								<option value="份">份</option>
+								<option value="两">两</option>
+								<option value="个">个</option>
+								<option value="杯">杯</option>
+							</select>
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">价格</label>
+						<div class="layui-input-block">
+							<input type="text" name="price" autocomplete="off" placeholder="请输入价格"
+								class="layui-input">
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">描述</label>
+						<div class="layui-input-block">
+							<textarea name="description" placeholder="请输入描述" class="layui-textarea"></textarea>
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">图片</label>
+						<div class="layui-input-block">
+							<input type="hidden" name="picture" id="picture" autocomplete="off"  class="layui-input">
+							<div class="layui-upload">
+								<button type="button" class="layui-btn" id="test1">上传图片</button>
+								<div class="layui-upload-list">
+									<img class="layui-upload-img" id="demo1" style="width: 100px; height: 100px">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="bottom">
+				<div class="button-container">
+					<button type="submit" class="pear-btn pear-btn-primary pear-btn-sm" lay-submit=""
+						lay-filter="user-save">
+						<i class="layui-icon layui-icon-ok"></i>
+						提交
+					</button>
+					<button type="reset" class="pear-btn pear-btn-sm">
+						<i class="layui-icon layui-icon-refresh"></i>
+						重置
+					</button>
+				</div>
+			</div>
+		</form>
+		<script th:src="@{/component/layui/layui.js}"></script>
+		<script th:src="@{/component/pear/pear.js}"></script>
+		<script>
+			layui.use(['form', 'jquery', 'upload', 'element'], function() {
+				let form = layui.form;
+				let $ = layui.jquery;
+				let upload = layui.upload;
+
+				var uploadInst = upload.render({
+					elem: '#test1'
+					, url: '/common/upload'
+					, accept:'images'
+					, acceptMime: 'image/*'
+					, before: function (obj) {
+						//预先回显图片
+						obj.preview(function (index, file, result) {
+							$('#demo1').attr('src', result);
+						});
+					}
+					, done: function (res) {
+						//如果上传失败
+						if (res.code !== 200) {
+							return layer.msg('上传失败');
+						}
+						layer.msg('上传图片中', {icon: 16, time: 1000},function (){
+							$('#picture').val(res.data);
+							return layer.msg('上传成功');
+						});
+					}
+					, error: function () {
+						layer.msg('上传失败，请重新上传');
+					}
+				});
+
+
+				form.on('submit(user-save)', function(data) {
+					$.ajax({
+						url: '/recipe/add',
+						data: JSON.stringify(data.field),
+						dataType: 'json',
+						contentType: 'application/json',
+						type: 'post',
+						success: function(result) {
+							if (result.code === 200) {
+								layer.msg(result.data, {
+									icon: 1,
+									time: 1000
+								}, function() {
+									parent.layer.close(parent.layer.getFrameIndex(window
+										.name)); //关闭当前页
+									parent.layui.table.reload("user-table");
+								});
+							} else {
+								layer.msg(result.msg, {
+									icon: 2,
+									time: 1000
+								});
+							}
+						}
+					})
+					return false;
+				});
+			})
+		</script>
+		<script>
+		</script>
+	</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<title>登录</title>
+		<!-- 样 式 文 件 -->
+		<link rel="icon" sizes="192x192" th:href="@{/admin/images/logo.png}">
+		<link rel="stylesheet" th:href="@{/component/pear/css/pear.css}" />
+		<link rel="stylesheet" th:href="@{/admin/css/other/login.css}" />
+	</head>
+    <!-- 代 码 结 构 -->
+	<body th:background="|@{/admin/images/background.jpg}|" style="background-size: cover; background-position: center">
+		<form class="layui-form" action="javascript:void(0);">
+			<div class="layui-form-item">
+				<img class="logo" th:src="@{/admin/images/logo.png}" />
+				<div class="title">My Canteen</div>
+			</div>
+			<div class="layui-form-item">
+				<input placeholder="账 户 :" type="text" id="username" lay-verify="required" hover class="layui-input"  />
+			</div>
+			<div class="layui-form-item">
+				<input placeholder="密 码 :" type="password" id="password" lay-verify="required" hover class="layui-input"  />
+			</div>
+			<div class="layui-form-item">
+				<input placeholder="验证码 : " type="text" id="code"  hover  lay-verify="required" class="code layui-input layui-input-inline"  />
+				<img th:src="@{/common/getCode}" class="codeImage" id="codeImg" onclick="reClick()" alt="验证码"/>
+			</div>
+			<div class="layui-form-item">
+				<button type="button" class="pear-btn pear-btn-success login" lay-submit lay-filter="login">
+					登 录
+				</button>
+			</div>
+		</form>
+		<!-- 资 源 引 入 -->
+		<script th:src="@{/component/layui/layui.js}"></script>
+		<script th:src="@{/component/pear/pear.js}"></script>
+		<script>
+			layui.use(['form', 'button', 'popup'], function() {
+				var $ = layui.$;
+				var form = layui.form;
+				var button = layui.button;
+				var popup = layui.popup;
+				
+                // 登 录 提 交
+				form.on('submit(login)', function(data) {
+					var name = $('#username').val();
+					var password = $('#password').val();
+					var code = $('#code').val();
+
+					/// 登录
+					$.ajax({
+						url: "/login/userLogin",
+						type: "post",
+						data: {
+							'username': name,
+							'password': password,
+							'captcha': code
+						},
+						dataType: "json",
+						contentType: "application/x-www-form-urlencoded", // 默认， 如果传复杂对象用application/json
+						success: function (res){
+							if (res.code === 200) {
+								/// 动画
+								button.load({
+									elem: '.login',
+									time: 1500,
+									done: function() {
+										popup.success(res.data, function() {
+											if (res.data === "员工登录成功") {
+												location.href = "/front/toMain"
+											}else{
+												location.href = "/back/toIndex"
+											}
+										});
+									}
+								})
+							}else{
+								popup.failure(res.msg, function (){
+									location.reload()
+								})
+							}
+						}
+					});
+					return false;
+				});
+			})
+
+			function reClick() {
+				document.getElementById("codeImg").src = "/common/getCode?time=" + new Date().getTime();
+			}
+		</script>
+	</body>
+</html>

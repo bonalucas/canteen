@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>修改密码</title>
+    <link rel="stylesheet" th:href="@{/component/pear/css/pear.css}" />
+</head>
+<body>
+<form class="layui-form" action="">
+    <div class="mainBox">
+        <div class="main-container">
+            <div class="layui-form-item">
+                <label class="layui-form-label">旧密码</label>
+                <div class="layui-input-block">
+                    <input type="text" autocomplete="off" placeholder="请输入旧密码" id="oldPwd"
+                           class="layui-input">
+                    <input type="hidden" id="oldHidPwd" th:value="${session.currUser.password}">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">新密码</label>
+                <div class="layui-input-block">
+                    <input type="text" autocomplete="off" placeholder="请输入新密码" id="newPwd"
+                           class="layui-input">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="button-container">
+            <button type="submit" class="pear-btn pear-btn-primary pear-btn-sm" lay-submit=""
+                    lay-filter="user-save">
+                <i class="layui-icon layui-icon-ok"></i>
+                提交
+            </button>
+            <button type="reset" class="pear-btn pear-btn-sm">
+                <i class="layui-icon layui-icon-refresh"></i>
+                重置
+            </button>
+        </div>
+    </div>
+</form>
+<script th:src="@{/component/layui/layui.js}"></script>
+<script th:src="@{/component/pear/pear.js}"></script>
+<script>
+    layui.use(['form', 'jquery'], function() {
+        let form = layui.form;
+        let $ = layui.jquery;
+
+        $("#oldPwd").blur(function (){
+            var oldPwd = $("#oldPwd").val();
+            var orgPwd = $("#oldHidPwd").val();
+            if (oldPwd !== orgPwd){
+                layer.msg("旧密码不一致", {
+                    icon: 2,
+                    time: 1000
+                });
+                $(this).val("");
+            }
+        });
+
+        form.on('submit(user-save)', function() {
+            var pwd = $("#newPwd").val();
+            $.ajax({
+                url: '/user/updatePwd',
+                data: {"password": pwd},
+                dataType: 'json',
+                type: 'post',
+                success: function(result) {
+                    if (result.code === 200) {
+                        layer.msg(result.data, {
+                            icon: 1,
+                            time: 1000
+                        }, function() {
+                            parent.layer.close(parent.layer.getFrameIndex(window
+                                .name)); //关闭当前页
+                            parent.layui.table.reload("user-table");
+                        });
+                    } else {
+                        layer.msg(result.msg, {
+                            icon: 2,
+                            time: 1000
+                        });
+                    }
+                }
+            })
+            return false;
+        });
+    })
+</script>
+<script>
+</script>
+</body>
+</html>
