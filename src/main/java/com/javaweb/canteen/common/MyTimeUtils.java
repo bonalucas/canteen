@@ -73,27 +73,4 @@ public class MyTimeUtils {
         Date month = DateUtil.parse(date);
         return DateUtil.endOfDay(DateUtil.offsetDay(DateUtil.offsetMonth(month, 1), -1));
     }
-
-    /**
-     * 通过字符串date获取对应时间的当天开始时间
-     */
-    public static Date getDayBeginOfTime(String date){
-        Date day = DateUtil.parse(date);
-        return DateUtil.beginOfDay(day);
-    }
-
-    /**
-     * 通过字符串date获取对应时间的当天终点时间
-     */
-    public static Date getDayEndOfTime(String date){
-        Date day = DateUtil.parse(date);
-        return DateUtil.endOfDay(DateUtil.offsetDay(DateUtil.offsetMonth(day, 1), -1));
-    }
-
-    /**
-     * 根据当前时间获取下周对应时间
-     */
-    public static Date getNextWeekOfTime(Date date){
-        return DateUtil.nextWeek();
-    }
 }

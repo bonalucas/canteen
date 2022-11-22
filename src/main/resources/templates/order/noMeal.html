@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
-    <title>正在出餐</title>
+    <title>厨师专栏</title>
     <link rel="stylesheet" th:href="@{/component/pear/css/pear.css}" />
 </head>
 <body class="pear-container">
@@ -12,9 +12,11 @@
     </div>
 </div>
 
-<script type="text/html" id="user-bar">
-    <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit">详情</button>
-    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove">出餐</button>
+<script type="text/html" id="user-toolbar">
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="print">
+        <i class="layui-icon layui-icon-print"></i>
+        批量打印
+    </button>
 </script>
 
 <script th:src="@{/component/layui/layui.js}"></script>
@@ -29,47 +31,38 @@
         let cols = [
             [
                 {
-                    title: '订单编号',
-                    field: 'orderId',
-                    align: 'center',
-                    width: 150
+                    type: 'checkbox'
                 },
                 {
-                    title: '用户名',
+                    title: '菜品名称',
                     field: 'name',
+                    align: 'center',
+                    width: 120
+                },
+                {
+                    title: '计量单位',
+                    field: 'unit',
                     align: 'center',
                     width: 100
                 },
                 {
-                    title: '电话',
-                    field: 'telephone',
+                    title: '数量',
+                    field: 'weight',
+                    align: 'center',
+                    width: 100
+                },
+                {
+                    title: '总计',
+                    field: 'totalPrice',
                     align: 'center',
                     width: 120
-                },
-                {
-                    title: '下单时间',
-                    field: 'orderTime',
-                    align: 'center',
-                    width: 160
-                },
-                {
-                    title: '订单金额',
-                    field: 'orderPrice',
-                    align: 'center',
-                    width: 120
-                },
-                {
-                    title: '操作',
-                    toolbar: '#user-bar',
-                    align: 'center',
-                    width: 150
                 }
             ]
         ]
 
         table.render({
             elem: '#user-table',
-            url: '/order/page/0',
+            url: '/order/pageChef',
             page: true,
             parseData:function(res) {
                 return {
@@ -83,65 +76,50 @@
             skin: 'line',
             limits: [10, 20],
             toolbar: '#user-toolbar',
-            defaultToolbar: [{
-                title: '刷新',
-                layEvent: 'refresh',
-                icon: 'layui-icon-refresh',
-            }, 'filter', 'print', 'exports']
+            defaultToolbar: []
         });
 
-        table.on('tool(user-table)', function(obj) {
-            if (obj.event === 'remove') {
-                window.remove(obj);
-            } else if (obj.event === 'edit') {
-                window.edit(obj);
+        table.on('toolbar(user-table)', function(obj) {
+            if (obj.event === 'print') {
+
+                var checkIds = common.checkField(obj, 'name');
+
+                if (checkIds === "") {
+                    layer.msg("未选中数据", {
+                        icon: 3,
+                        time: 1000
+                    });
+                    return false;
+                }
+
+                layer.confirm('确定批量打印这些订单吗', {
+                    icon: 3,
+                    title: '提示'
+                }, function(index) {
+                    layer.close(index);
+                    let loading = layer.load();
+                    // 创建get请求路径
+                    let downloadUrl = "http://localhost:8888/order/printChef/" + checkIds;
+                    // 创建a标签
+                    let label = $("<a>");
+                    // 添加属性
+                    label.prop("href",downloadUrl);
+                    // 追加标签
+                    $("body").append(label);
+                    // 点击a标签，为什么要加[0]不懂，不加点击函数不生效
+                    label[0].click();
+                    // 点击后移除标签
+                    label.remove();
+                    layer.close(loading);
+                    layer.msg("打印成功", {
+                        icon: 1,
+                        time: 1000
+                    }, function() {
+                        table.reload('user-table');
+                    });
+                });
             }
         });
-
-        window.edit = function(obj) {
-            layer.open({
-                type: 2,
-                title: '订单详情',
-                shade: 0.1,
-                area: ['800px', '400px'],
-                content: '/back/toDetails/' + obj.data['orderId']
-            });
-        }
-
-        window.remove = function(obj) {
-            layer.confirm('确定完成出餐', {
-                icon: 3,
-                title: '提示'
-            }, function(index) {
-                layer.close(index);
-                let loading = layer.load();
-                $.ajax({
-                    url: "/order/updateState/0/" + obj.data['orderId'],
-                    dataType: 'json',
-                    type: 'PUT',
-                    success: function(result) {
-                        layer.close(loading);
-                        if (result.code === 200) {
-                            layer.msg(result.data, {
-                                icon: 1,
-                                time: 1000
-                            }, function() {
-                                obj.del();
-                            });
-                        } else {
-                            layer.msg(result.msg, {
-                                icon: 2,
-                                time: 1000
-                            });
-                        }
-                    }
-                })
-            });
-        }
-
-        window.refresh = function(param) {
-            table.reload('user-table');
-        }
     })
 </script>
 </body>

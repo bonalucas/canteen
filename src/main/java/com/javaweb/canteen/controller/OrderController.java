@@ -1,10 +1,13 @@
 package com.javaweb.canteen.controller;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.javaweb.canteen.common.MyTimeUtils;
 import com.javaweb.canteen.common.R;
@@ -18,12 +21,12 @@ import com.javaweb.canteen.service.OrderFormService;
 import com.javaweb.canteen.service.ShopCartService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
-import java.util.List;
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -109,8 +112,8 @@ public class OrderController {
 
         // 处理当前这一天的订单
         if (orderTime != null && StrUtil.isNotEmpty(orderTime)) {
-            Date begin = MyTimeUtils.getDayBeginOfTime(orderTime);
-            Date end = MyTimeUtils.getDayEndOfTime(orderTime);
+            Date begin = MyTimeUtils.getMonthOfBeginTime(orderTime);
+            Date end = MyTimeUtils.getMonthOfEndTime(orderTime);
             // 加入时间查找
             queryWrapper.between(OrderForm::getOrderTime, begin, end);
         }
@@ -120,21 +123,176 @@ public class OrderController {
     }
 
     /**
-     * 订单状态更改接口
+     * 厨师专栏订单分页接口
      */
-//    @PreAuthorize("hasAnyRole('chef','caterer')")
-//    @PutMapping("/updateState/{state}/{orderId}")
-//    public R<String> updateState(@PathVariable Long orderId, @PathVariable Integer state){
-//        LambdaUpdateWrapper<OrderForm> updateWrapper = new LambdaUpdateWrapper<>();
-//        updateWrapper.eq(orderId != null, OrderForm::getOrderId, orderId)
-//                .set(OrderForm::getState, state + 1);
-//        boolean res = orderFormService.update(null, updateWrapper);
-//        if (res) {
-//            return R.success("状态更新成功");
-//        }else{
-//            return R.fail("状态更新失败");
-//        }
-//    }
+    @GetMapping("/pageChef")
+    public R<Page<BlanketOrder>> pageByChef(int page, int limit){
+        Page<BlanketOrder> pageInfo = new Page<>(page, limit);
+
+        QueryWrapper<BlanketOrder> queryWrapper = new QueryWrapper<>();
+        // 获取当前这一天的开始与结尾
+        Date begin = DateUtil.beginOfDay(DateUtil.date());
+        Date end = DateUtil.endOfDay(DateUtil.date());
+        queryWrapper.between("createTime", begin, end)
+                .select("name, unit, sum(weight) as weight, sum(totalPrice) as totalPrice")
+                .groupBy("name, unit, price");
+        blanketOrderService.page(pageInfo, queryWrapper);
+        return R.success(pageInfo);
+    }
+
+    /**
+     * 厨师批量打印功能
+     */
+    @GetMapping("/printChef/{names}")
+    public void printByBatchWithChef(@PathVariable String names, HttpServletResponse response){
+        QueryWrapper<BlanketOrder> queryWrapper = new QueryWrapper<>();
+        // 获取当前这一天的开始与结尾
+        Date begin = DateUtil.beginOfDay(DateUtil.date());
+        Date end = DateUtil.endOfDay(DateUtil.date());
+        queryWrapper.between("createTime", begin, end)
+                .in("name", Arrays.stream(names.split(",")).toArray())
+                .select("name, unit, sum(weight) as weight, sum(totalPrice) as totalPrice")
+                .groupBy("name, unit, price");
+        List<BlanketOrder> list = blanketOrderService.list(queryWrapper);
+
+        ArrayList<Map<String, Object>> data = new ArrayList<>();
+        for (BlanketOrder bo : list) {
+            Map<String, Object> map = new LinkedHashMap<>();
+            map.put("菜品名称", bo.getName());
+            map.put("计量单位", bo.getUnit());
+            map.put("数量", bo.getWeight());
+            map.put("总计", bo.getTotalPrice());
+            data.add(map);
+        }
+        ServletOutputStream out = null;
+        try (ExcelWriter writer = ExcelUtil.getWriter()) {
+            writer.merge(3, "今日备餐汇总");
+            writer.write(data, true);
+            response.setContentType("application/vnd.ms-excel;charset=utf-8");
+            response.setHeader("Content-Disposition", "attachment;filename=orderByChef.xls");
+            out = response.getOutputStream();
+            writer.flush(out, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (out != null) {
+                IoUtil.close(out);
+            }
+        }
+    }
+
+    /**
+     * 配送员批量打印功能
+     */
+    @GetMapping("/printCaterer/{orderIds}")
+    public void printByBatchWithCaterer(@PathVariable String orderIds, HttpServletResponse response) {
+        LambdaQueryWrapper<OrderForm> queryWrapper = new LambdaQueryWrapper<>();
+        Date begin = DateUtil.beginOfDay(DateUtil.date());
+        Date end = DateUtil.endOfDay(DateUtil.date());
+        queryWrapper.between(OrderForm::getOrderTime, begin, end)
+                .in(OrderForm::getOrderId, Arrays.stream(orderIds.split(",")).toArray());
+        List<OrderForm> list = orderFormService.list(queryWrapper);
+        ServletOutputStream out = null;
+        if (list.size() >= 1) {
+            int cnt = 0;
+            try (ExcelWriter writer = ExcelUtil.getWriterWithSheet(String.valueOf(list.get(cnt).getOrderId()))) {
+                for (OrderForm o : list) {
+                    if (cnt != 0) writer.setSheet(String.valueOf(o.getOrderId()));
+                    writer.merge(5, "今日配送信息");
+                    Map<String, Object> map = new LinkedHashMap<>();
+                    map.put("订单编号", String.valueOf(o.getOrderId()));
+                    map.put("用户名", o.getName());
+                    map.put("电话", o.getTelephone());
+                    map.put("下单时间", DateUtil.format(o.getOrderTime(), "HH:mm:ss"));
+                    map.put("", "");
+                    map.put("订单金额", o.getOrderPrice());
+                    ArrayList<Map<String, Object>> list1 = new ArrayList<>();
+                    list1.add(map);
+                    writer.write(list1, true);
+                    LambdaQueryWrapper<BlanketOrder> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+                    lambdaQueryWrapper.eq(BlanketOrder::getOrderId, o.getOrderId());
+                    List<BlanketOrder> blanketOrderList = blanketOrderService.list(lambdaQueryWrapper);
+                    ArrayList<Map<String, Object>> list2 = new ArrayList<>();
+                    for (BlanketOrder bo : blanketOrderList) {
+                        Map<String, Object> map1 = new LinkedHashMap<>();
+                        map1.put("菜品名称", bo.getName());
+                        map1.put("计量单位", bo.getUnit());
+                        map1.put("数量", bo.getWeight());
+                        map1.put("单价", bo.getPrice());
+                        map1.put("总计", bo.getTotalPrice());
+                        map1.put("下单时间", DateUtil.format(bo.getCreateTime(), "HH:mm:ss"));
+                        list2.add(map1);
+                    }
+                    writer.write(list2, true);
+                    cnt++;
+                }
+                response.setContentType("application/vnd.ms-excel;charset=utf-8");
+                response.setHeader("Content-Disposition", "attachment;filename=orderByCaterer.xls");
+                out = response.getOutputStream();
+                writer.flush(out, true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (out != null) {
+                    IoUtil.close(out);
+                }
+            }
+        }
+    }
+
+
+    @GetMapping("/print/{orderIds}")
+    public void print(@PathVariable String orderIds, HttpServletResponse response) {
+        LambdaQueryWrapper<OrderForm> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(OrderForm::getOrderId, Arrays.stream(orderIds.split(",")).toArray());
+        List<OrderForm> list = orderFormService.list(queryWrapper);
+        ServletOutputStream out = null;
+        if (list.size() >= 1) {
+            int cnt = 0;
+            try (ExcelWriter writer = ExcelUtil.getWriterWithSheet(String.valueOf(list.get(cnt).getOrderId()))) {
+                for (OrderForm o : list) {
+                    if (cnt != 0) writer.setSheet(String.valueOf(o.getOrderId()));
+                    writer.merge(5, "订单信息");
+                    Map<String, Object> map = new LinkedHashMap<>();
+                    map.put("订单编号", String.valueOf(o.getOrderId()));
+                    map.put("用户名", o.getName());
+                    map.put("电话", o.getTelephone());
+                    map.put("下单时间", DateUtil.format(o.getOrderTime(), "HH:mm:ss"));
+                    map.put("", "");
+                    map.put("订单金额", o.getOrderPrice());
+                    ArrayList<Map<String, Object>> list1 = new ArrayList<>();
+                    list1.add(map);
+                    writer.write(list1, true);
+                    LambdaQueryWrapper<BlanketOrder> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+                    lambdaQueryWrapper.eq(BlanketOrder::getOrderId, o.getOrderId());
+                    List<BlanketOrder> blanketOrderList = blanketOrderService.list(lambdaQueryWrapper);
+                    ArrayList<Map<String, Object>> list2 = new ArrayList<>();
+                    for (BlanketOrder bo : blanketOrderList) {
+                        Map<String, Object> map1 = new LinkedHashMap<>();
+                        map1.put("菜品名称", bo.getName());
+                        map1.put("计量单位", bo.getUnit());
+                        map1.put("数量", bo.getWeight());
+                        map1.put("单价", bo.getPrice());
+                        map1.put("总计", bo.getTotalPrice());
+                        map1.put("下单时间", DateUtil.format(bo.getCreateTime(), "HH:mm:ss"));
+                        list2.add(map1);
+                    }
+                    writer.write(list2, true);
+                    cnt++;
+                }
+                response.setContentType("application/vnd.ms-excel;charset=utf-8");
+                response.setHeader("Content-Disposition", "attachment;filename=orderAll.xls");
+                out = response.getOutputStream();
+                writer.flush(out, true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (out != null) {
+                    IoUtil.close(out);
+                }
+            }
+        }
+    }
 
     /**
      * 订单详情接口

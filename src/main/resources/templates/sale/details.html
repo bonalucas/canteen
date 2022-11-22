@@ -42,12 +42,6 @@
 					width: 100
 				},
 				{
-					title: '价格',
-					field: 'price',
-					align: 'center',
-					width: 100
-				},
-				{
 					title: '总计',
 					field: 'totalPrice',
 					align: 'center',
@@ -71,11 +65,7 @@
 			cols: cols,
 			skin: 'line',
 			limits: [20, 30],
-			defaultToolbar: [{
-				title: '刷新',
-				layEvent: 'refresh',
-				icon: 'layui-icon-refresh',
-			}, 'filter', 'print', 'exports']
+			defaultToolbar: []
 		});
 
 		window.refresh = function(param) {

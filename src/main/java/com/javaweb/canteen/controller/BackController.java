@@ -131,7 +131,7 @@ public class BackController {
     }
 
     /**
-     * 正在出餐订单页面跳转
+     * 厨师专栏订单页面跳转
      */
     @PreAuthorize("hasRole('chef')")
     @GetMapping("/back/toNoMeal")

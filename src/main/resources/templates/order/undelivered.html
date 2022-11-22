@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
-    <title>正在配送</title>
+    <title>配送员专栏</title>
     <link rel="stylesheet" th:href="@{/component/pear/css/pear.css}" />
 </head>
 <body class="pear-container">
@@ -14,7 +14,13 @@
 
 <script type="text/html" id="user-bar">
     <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit">详情</button>
-    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove">配送</button>
+</script>
+
+<script type="text/html" id="user-toolbar">
+    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="print">
+        <i class="layui-icon layui-icon-print"></i>
+        批量打印
+    </button>
 </script>
 
 <script th:src="@{/component/layui/layui.js}"></script>
@@ -28,6 +34,9 @@
 
         let cols = [
             [
+                {
+                    type: 'checkbox'
+                },
                 {
                     title: '订单编号',
                     field: 'orderId',
@@ -69,7 +78,7 @@
 
         table.render({
             elem: '#user-table',
-            url: '/order/page/1',
+            url: '/order/page',
             page: true,
             parseData:function(res) {
                 return {
@@ -83,17 +92,11 @@
             skin: 'line',
             limits: [10, 20],
             toolbar: '#user-toolbar',
-            defaultToolbar: [{
-                title: '刷新',
-                layEvent: 'refresh',
-                icon: 'layui-icon-refresh',
-            }, 'filter', 'print', 'exports']
+            defaultToolbar: []
         });
 
         table.on('tool(user-table)', function(obj) {
-            if (obj.event === 'remove') {
-                window.remove(obj);
-            } else if (obj.event === 'edit') {
+            if (obj.event === 'edit') {
                 window.edit(obj);
             }
         });
@@ -108,40 +111,47 @@
             });
         }
 
-        window.remove = function(obj) {
-            layer.confirm('确定完成配送', {
-                icon: 3,
-                title: '提示'
-            }, function(index) {
-                layer.close(index);
-                let loading = layer.load();
-                $.ajax({
-                    url: "/order/updateState/1/" + obj.data['orderId'],
-                    dataType: 'json',
-                    type: 'PUT',
-                    success: function(result) {
-                        layer.close(loading);
-                        if (result.code === 200) {
-                            layer.msg(result.data, {
-                                icon: 1,
-                                time: 1000
-                            }, function() {
-                                obj.del();
-                            });
-                        } else {
-                            layer.msg(result.msg, {
-                                icon: 2,
-                                time: 1000
-                            });
-                        }
-                    }
-                })
-            });
-        }
+        table.on('toolbar(user-table)', function(obj) {
+            if (obj.event === 'print') {
 
-        window.refresh = function(param) {
-            table.reload('user-table');
-        }
+                var checkIds = common.checkField(obj, 'orderId');
+
+                if (checkIds === "") {
+                    layer.msg("未选中数据", {
+                        icon: 3,
+                        time: 1000
+                    });
+                    return false;
+                }
+
+                layer.confirm('确定批量打印这些订单吗', {
+                    icon: 3,
+                    title: '提示'
+                }, function(index) {
+                    layer.close(index);
+                    let loading = layer.load();
+                    // 创建get请求路径
+                    let downloadUrl = "http://localhost:8888/order/printCaterer/" + checkIds;
+                    // 创建a标签
+                    let label = $("<a>");
+                    // 添加属性
+                    label.prop("href",downloadUrl);
+                    // 追加标签
+                    $("body").append(label);
+                    // 点击a标签，为什么要加[0]不懂，不加点击函数不生效
+                    label[0].click();
+                    // 点击后移除标签
+                    label.remove();
+                    layer.close(loading);
+                    layer.msg("打印成功", {
+                        icon: 1,
+                        time: 1000
+                    }, function() {
+                        table.reload('user-table');
+                    });
+                });
+            }
+        });
     })
 </script>
 </body>

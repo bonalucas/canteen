@@ -116,7 +116,7 @@ public class MenuController {
             menu.setUnit(recipe.getUnit());
             menu.setPrice(recipe.getPrice());
             // 时间推移到下周
-            menu.setCreateTime(DateUtil.date());
+            menu.setCreateTime(DateUtil.nextWeek());
             res = menuService.save(menu);
         }else{
             return R.fail("当前菜品已被添加");
