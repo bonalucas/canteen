@@ -26,6 +26,7 @@
     <script type="text/javascript" th:src="@{/frontStatic/js/sweetalert.min.js}"></script>
     <script type="text/javascript" th:src="@{/frontStatic/js/distpicker.js}"></script>
     <script type="text/javascript" th:src="@{/frontStatic/js/jquery.raty.js}"></script>
+    <script type="text/javascript" th:src="@{/frontStatic/js/front/list.js}"></script>
     <style>
         .templatemo-blue-button {
             background-color: #39ADB4;
@@ -55,14 +56,14 @@
     <div class="demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
         <header class="demo-drawer-header">
             <div class="demo-avatar-dropdown">
-                <h1>Aba</h1>
+                <h1>Canteen</h1>
                 <div class="mdl-layout-spacer"></div>
             </div>
         </header>
         <nav class="demo-navigation mdl-navigation mdl-color--blue-grey-800">
             <a class="mdl-navigation__link" th:href="@{/front/toMain}"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">home</i>主页</a>
             <a class="mdl-navigation__link" th:href="@{/front/toInfo}"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">inbox</i>个人信息</a>
-            <a class="mdl-navigation__link" th:href="@{/front/toOrder}"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">forum</i>订单管理</a>
+            <a class="mdl-navigation__link" th:href="@{/front/toOrder}"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">forum</i>今日订单</a>
             <a class="mdl-navigation__link" th:href="@{/front/toMonOrder}"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">forum</i>月度订单</a>
         </nav>
     </div>
@@ -93,9 +94,6 @@
                                         计量单位
                                     </td>
                                     <td class="col-lg-1">
-                                        价格
-                                    </td>
-                                    <td class="col-lg-1">
                                         数量
                                     </td>
                                     <td class="col-lg-2">
@@ -116,9 +114,6 @@
                                     <td class="col-lg-2" th:text="${bo.unit}">
                                         XXX
                                     </td>
-                                    <td class="col-lg-1" th:text="${bo.price}">
-                                        XXX
-                                    </td>
                                     <td class="col-lg-1" th:text="${bo.weight}">
                                         XXX
                                     </td>
@@ -130,6 +125,7 @@
                             </table>
                         </div>
                         <div class="mdl-card__actions mdl-card--border">
+                            <button class="templatemo-blue-button " name="finishList" value="${pageContext.request.contextPath}"><h5>打印流水</h5></button>
                         </div>
                     </div>
                 </div>

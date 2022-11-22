@@ -1,6 +1,9 @@
 package com.javaweb.canteen.controller;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.javaweb.canteen.common.MyTimeUtils;
 import com.javaweb.canteen.entity.*;
@@ -16,10 +19,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
 
 @Slf4j
 @Controller
@@ -167,5 +170,52 @@ public class FrontController {
         request.getSession().setAttribute("monBlanketOrderList", monBlanketOrderList);
         request.getSession().setAttribute("monTotalPrice", monTotalPrice);
         return "front/monOrder";
+    }
+
+    /**
+     * 月度订单打印
+     */
+    @GetMapping("/print")
+    public void print(HttpServletResponse response, HttpServletRequest request){
+        MyUser currUser = (MyUser) request.getSession().getAttribute("currUser");
+        String monDate = (String) request.getSession().getAttribute("monDate");
+        Long monTotalPrice = (Long) request.getSession().getAttribute("monTotalPrice");
+        List<BlanketOrder> monBlanketOrderList = (List<BlanketOrder>) request.getSession().getAttribute("monBlanketOrderList");
+        ServletOutputStream out = null;
+        try (ExcelWriter writer = ExcelUtil.getWriter()) {
+            writer.merge(4, "员工月度订单汇总");
+            Map<String, Object> map = new LinkedHashMap<>();
+            map.put("员工", currUser.getName());
+            map.put("", "");
+            map.put("联系电话", currUser.getTelephone());
+            map.put(" ", " ");
+            map.put("统计月份", monDate);
+            ArrayList<Map<String, Object>> list1 = new ArrayList<>();
+            list1.add(map);
+            writer.write(list1, true);
+            ArrayList<Map<String, Object>> list2 = new ArrayList<>();
+            for (BlanketOrder bo : monBlanketOrderList){
+                Map<String, Object> map1 = new LinkedHashMap<>();
+                map1.put("时间", DateUtil.formatDateTime(bo.getCreateTime()));
+                map1.put("菜名", bo.getName());
+                map1.put("单位", bo.getUnit());
+                map1.put("分量", bo.getWeight());
+                map1.put("总计", bo.getTotalPrice());
+                list2.add(map1);
+            }
+            writer.write(list2, true);
+            writer.merge(4, "合计金额");
+            writer.merge(4, monTotalPrice, false);
+            response.setContentType("application/vnd.ms-excel;charset=utf-8");
+            response.setHeader("Content-Disposition", "attachment;filename=monOrder.xls");
+            out = response.getOutputStream();
+            writer.flush(out, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (out != null) {
+                IoUtil.close(out);
+            }
+        }
     }
 }

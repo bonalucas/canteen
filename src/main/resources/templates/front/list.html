@@ -46,7 +46,7 @@
 <div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
     <header class="demo-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
         <div class="mdl-layout__header-row">
-            <span class="mdl-layout-title">订单管理</span>
+            <span class="mdl-layout-title">今日订单</span>
             <div class="mdl-layout-spacer"></div>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
             </div>
@@ -55,142 +55,22 @@
     <div class="demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
         <header class="demo-drawer-header">
             <div class="demo-avatar-dropdown">
-                <h1>Aba</h1>
+                <h1>Canteen</h1>
                 <div class="mdl-layout-spacer"></div>
             </div>
         </header>
         <nav class="demo-navigation mdl-navigation mdl-color--blue-grey-800">
             <a class="mdl-navigation__link" th:href="@{/front/toMain}"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">home</i>主页</a>
             <a class="mdl-navigation__link" th:href="@{/front/toInfo}"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">inbox</i>个人信息</a>
-            <a class="mdl-navigation__link" th:href="@{/front/toOrder}"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">forum</i>订单管理</a>
+            <a class="mdl-navigation__link" th:href="@{/front/toOrder}"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">forum</i>今日订单</a>
             <a class="mdl-navigation__link" th:href="@{/front/toMonOrder}"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">forum</i>月度订单</a>
         </nav>
     </div>
     <main class="mdl-layout__content mdl-color--grey-100">
             <div class="mdl-grid demo-content" id="parent">
                 <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-                    <h3>正在出餐</h3>
-                        <div  th:each="order:${session.orderList}" th:if="${order.state == 0}" class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-                        <div class="tab-content col-lg-12">
-                            <table class="table " cellpadding="6" cellspacing="1" >
-                                <tbody>
-                                <td class="no-border col-lg-9" th:text="'订单号：' + ${order.orderId} + '&nbsp;&nbsp;&nbsp;订单日期:' + ${#dates.format(order.orderTime,'yyyy-MM-dd HH:mm:ss')} + '&nbsp;&nbsp;&nbsp;电话：' + ${order.telephone}">
-                                </td>
-                                <td  class="no-border col-lg-3" th:text="'实付款:' + ${order.orderPrice}">
-                                </td>
-                                </tbody>
-                            </table>
-                            <table class="table " cellpadding="6" cellspacing="1">
-                                <tbody>
-                                <tr>
-                                    <td class="col-lg-1">
-                                        菜品名称
-                                    </td>
-                                    <td class="col-lg-2">
-                                        计量单位
-                                    </td>
-                                    <td class="col-lg-1">
-                                        价格
-                                    </td>
-                                    <td class="col-lg-1">
-                                        数量
-                                    </td>
-                                    <td class="col-lg-2">
-                                        总金额
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                            <table class="table table-bordered" cellpadding="6" cellspacing="1" th:each="bo:${session.blanketOrderList}" th:if="${bo.orderId == order.orderId}">
-                                <tbody>
-                                <tr>
-                                    <td class="col-lg-1" th:text="${bo.name}">
-                                        XXX
-                                    </td>
-                                    <td class="col-lg-2" th:text="${bo.unit}">
-                                        XXX
-                                    </td>
-                                    <td class="col-lg-1" th:text="${bo.price}">
-                                        XXX
-                                    </td>
-                                    <td class="col-lg-1" th:text="${bo.weight}">
-                                        XXX
-                                    </td>
-                                    <td class="col-lg-2" th:text="${bo.totalPrice}">
-                                        XXX
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mdl-card__actions mdl-card--border">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-                    <h3>正在配送</h3>
-                    <div th:each="order:${session.orderList}" th:if="${order.state == 1}" class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-                        <div class="tab-content col-lg-12">
-                            <table class="table " cellpadding="6" cellspacing="1" >
-                                <tbody>
-                                <td class="no-border col-lg-9" th:text="'订单号：' + ${order.orderId} + '&nbsp;&nbsp;&nbsp;订单日期:' + ${#dates.format(order.orderTime,'yyyy-MM-dd HH:mm:ss')} + '&nbsp;&nbsp;&nbsp;电话：' + ${order.telephone}">
-                                </td>
-                                <td  class="no-border col-lg-3" th:text="'实付款:' + ${order.orderPrice}">
-                                </td>
-                                </tbody>
-                            </table>
-                            <table class="table " cellpadding="6" cellspacing="1">
-                                <tbody>
-                                <tr>
-                                    <td class="col-lg-1">
-                                        菜品名称
-                                    </td>
-                                    <td class="col-lg-2">
-                                        计量单位
-                                    </td>
-                                    <td class="col-lg-1">
-                                        价格
-                                    </td>
-                                    <td class="col-lg-1">
-                                        数量
-                                    </td>
-                                    <td class="col-lg-2">
-                                        总金额
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                            <table class="table table-bordered" cellpadding="6" cellspacing="1" th:each="bo:${session.blanketOrderList}" th:if="${bo.orderId == order.orderId}">
-                                <tbody>
-                                <tr>
-                                    <td class="col-lg-1" th:text="${bo.name}">
-                                        XXX
-                                    </td>
-                                    <td class="col-lg-2" th:text="${bo.unit}">
-                                        XXX
-                                    </td>
-                                    <td class="col-lg-1" th:text="${bo.price}">
-                                        XXX
-                                    </td>
-                                    <td class="col-lg-1" th:text="${bo.weight}">
-                                        XXX
-                                    </td>
-                                    <td class="col-lg-2" th:text="${bo.totalPrice}">
-                                        XXX
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mdl-card__actions mdl-card--border">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-                    <h3>已完成</h3>
-                    <div th:each="order:${session.orderList}" th:if="${order.state == 2}" class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+                    <h3>订单详情</h3>
+                        <div  th:each="order:${session.orderList}" class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
                         <div class="tab-content col-lg-12">
                             <table class="table " cellpadding="6" cellspacing="1" >
                                 <tbody>
