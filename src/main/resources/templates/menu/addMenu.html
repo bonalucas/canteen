@@ -8,23 +8,31 @@
 <body class="pear-container">
 <div class="layui-card">
     <div class="layui-card-body">
-        <h4>所有菜谱</h4>
+        <form class="layui-form" action="">
+            <div class="layui-form-item" style="padding-left: 20px">
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">菜品名</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="name" placeholder="请输入菜品名" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="user-query">
+                        <i class="layui-icon layui-icon-search"></i>
+                        查询
+                    </button>
+                    <button type="reset" class="pear-btn pear-btn-md">
+                        <i class="layui-icon layui-icon-refresh"></i>
+                        重置
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 <div class="layui-card">
     <div class="layui-card-body">
         <table id="recipe-table" lay-filter="recipe-table"></table>
-    </div>
-</div>
-
-<div class="layui-card">
-    <div class="layui-card-body">
-        <h4>本周菜单</h4>
-    </div>
-</div>
-<div class="layui-card">
-    <div class="layui-card-body">
-        <table id="menu-table" lay-filter="menu-table"></table>
     </div>
 </div>
 
@@ -40,10 +48,6 @@
     <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="edit">挑选</button>
 </script>
 
-<script type="text/html" id="menu-bar">
-    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove">退选</button>
-</script>
-
 <script th:src="@{/component/layui/layui.js}"></script>
 <script th:src="@{/component/pear/pear.js}"></script>
 <script>
@@ -52,55 +56,6 @@
         let form = layui.form;
         let $ = layui.jquery;
         let common = layui.common;
-
-        let colsMenu = [
-            [
-                {
-                    title: '菜品名称',
-                    field: 'name',
-                    align: 'center',
-                    width: 120
-                },
-                {
-                    title: '分类',
-                    field: 'category',
-                    align: 'center',
-                    width: 100
-                },
-                {
-                    title: '计量单位',
-                    field: 'unit',
-                    align: 'center',
-                    width: 100
-                },
-                {
-                    title: '价格',
-                    field: 'price',
-                    align: 'center',
-                    width: 100
-                },
-                {
-                    title: '创建时间',
-                    field: 'createTime',
-                    align: 'center',
-                    width: 180
-                },
-                {
-                    title: '图片',
-                    field: 'picture',
-                    align: 'center',
-                    width: 100,
-                    templet: "#img",
-                    style: 'height:50px;'
-                },
-                {
-                    title: '操作',
-                    toolbar: '#menu-bar',
-                    align: 'center',
-                    width: 100
-                }
-            ]
-        ]
 
         let colsRecipe = [
             [
@@ -152,28 +107,6 @@
         ]
 
         table.render({
-            elem: '#menu-table',
-            url: '/menu/page',
-            page: true,
-            parseData:function(res) {
-                return {
-                    "code" : 0,
-                    "msg" : "",
-                    "count" : res.data.total,
-                    "data": res.data.records
-                }
-            },
-            cols: colsMenu,
-            skin: 'line',
-            limits: [10, 20],
-            defaultToolbar: [{
-                title: '刷新',
-                layEvent: 'refresh',
-                icon: 'layui-icon-refresh',
-            }, 'filter', 'print', 'exports']
-        });
-
-        table.render({
             elem: '#recipe-table',
             url: '/recipe/page',
             page: true,
@@ -188,17 +121,14 @@
             cols: colsRecipe,
             skin: 'line',
             limits: [10, 20],
-            defaultToolbar: [{
-                title: '刷新',
-                layEvent: 'refresh',
-                icon: 'layui-icon-refresh',
-            }, 'filter', 'print', 'exports']
+            defaultToolbar: []
         });
 
-        table.on('tool(menu-table)', function(obj) {
-            if (obj.event === 'remove') {
-                window.remove(obj);
-            }
+        form.on('submit(user-query)', function(data) {
+            table.reload('recipe-table', {
+                where: data.field
+            })
+            return false;
         });
 
         table.on('tool(recipe-table)', function(obj) {
@@ -208,7 +138,7 @@
         });
 
         window.edit = function(obj) {
-            layer.confirm('确定要添加该菜品到本周菜单', {
+            layer.confirm('确定要添加该菜品到下周菜单', {
                 icon: 3,
                 title: '提示'
             }, function(index) {
@@ -226,37 +156,6 @@
                                 time: 1000
                             }, function() {
                                 table.reload('menu-table')
-                            });
-                        } else {
-                            layer.msg(result.msg, {
-                                icon: 2,
-                                time: 1000
-                            });
-                        }
-                    }
-                })
-            });
-        }
-
-        window.remove = function(obj) {
-            layer.confirm('确定要退选该菜品', {
-                icon: 3,
-                title: '提示'
-            }, function(index) {
-                layer.close(index);
-                let loading = layer.load();
-                $.ajax({
-                    url: "/menu/delete/" + obj.data['menuId'],
-                    dataType: 'json',
-                    type: 'delete',
-                    success: function(result) {
-                        layer.close(loading);
-                        if (result.code === 200) {
-                            layer.msg(result.data, {
-                                icon: 1,
-                                time: 1000
-                            }, function() {
-                                obj.del();
                             });
                         } else {
                             layer.msg(result.msg, {

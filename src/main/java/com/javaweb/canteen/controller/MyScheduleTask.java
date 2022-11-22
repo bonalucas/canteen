@@ -3,14 +3,9 @@ package com.javaweb.canteen.controller;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.javaweb.canteen.entity.BlanketOrder;
-import com.javaweb.canteen.entity.Notify;
-import com.javaweb.canteen.entity.Sale;
-import com.javaweb.canteen.entity.ShopCart;
-import com.javaweb.canteen.service.BlanketOrderService;
-import com.javaweb.canteen.service.NotifyService;
-import com.javaweb.canteen.service.SaleService;
-import com.javaweb.canteen.service.ShopCartService;
+import com.javaweb.canteen.common.MyTimeUtils;
+import com.javaweb.canteen.entity.*;
+import com.javaweb.canteen.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -32,10 +27,13 @@ public class MyScheduleTask {
     private BlanketOrderService blanketOrderService;
 
     @Autowired
-    private NotifyService notifyService;
+    private ShopCartService shopCartService;
 
     @Autowired
-    private ShopCartService shopCartService;
+    private MenuService menuService;
+
+    @Autowired
+    private HistoryService historyService;
 
     /**
      * 每月的1号会自动生成月度销售信息
@@ -54,9 +52,8 @@ public class MyScheduleTask {
         LambdaQueryWrapper<BlanketOrder> queryWrapper = new LambdaQueryWrapper<>();
         if (StrUtil.isNotEmpty(month)){
             month = month + "-01";
-            Date date = DateUtil.parse(month);
-            Date begin = DateUtil.beginOfDay(date);
-            Date end = DateUtil.endOfDay(DateUtil.offsetDay(DateUtil.offsetMonth(date, 1), -1));
+            Date begin = MyTimeUtils.getMonthOfBeginTime(month);
+            Date end = MyTimeUtils.getMonthOfEndTime(month);
             queryWrapper.between(BlanketOrder::getCreateTime, begin, end);
         }
         List<BlanketOrder> list = blanketOrderService.list(queryWrapper);
@@ -66,43 +63,41 @@ public class MyScheduleTask {
         sale.setTotalPrice(totalPrice);
 
         boolean res = saleService.save(sale);
-        if (res){
-            Notify notify = new Notify();
-            notify.setMessage("月度销售详情已生成，请前往月度销售中查看");
-            notify.setCreateTime(DateUtil.date());
-            notifyService.save(notify);
-        }
+        log.info("上个月的销售订单自动生成{}", res ? "成功" : "失败");
     }
 
     /**
-     * 每天的11点30分会通知配送员开始配送
-     */
-    @Scheduled(cron = "0 30 11 * * ?")    // 执行时间为每日的11点30分
-    public void notifyDelivery(){
-        Notify notify = new Notify();
-        notify.setMessage("订单已完成出餐，请配送员前往订单进度->正在配送中查看并配送");
-        notify.setCreateTime(DateUtil.date());
-        notifyService.save(notify);
-    }
-
-    /**
-     * 每天的9点整会通知食堂大厨开始备餐
-     */
-    @Scheduled(cron = "0 0 9 * * ?")
-    public void notifyMeal(){
-        Notify notify = new Notify();
-        notify.setMessage("员工已全部发出订单，请食堂大厨前往订单进度->正在出餐中查看并备餐");
-        notify.setCreateTime(DateUtil.date());
-        notifyService.save(notify);
-    }
-
-    /**
-     * 每周的周一的0点整会清除所有用户的购物车信息
+     * 每周的周一的0点整自动清除所有用户的购物车信息
      */
     @Scheduled(cron = "0 0 0 ? * 2")
     public void clearShopCart(){
         LambdaQueryWrapper<ShopCart> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.or();
         shopCartService.remove(queryWrapper);
+        log.info("本周已结束，自动清除所有用户购物车");
+    }
+
+    /**
+     * 每周周天23:00:00分自动统计该周的所有菜品并归纳为这周历史菜单
+     */
+    @Scheduled(cron = "0 0 23 ? * 1")
+    public void addHistoryMenu() {
+        History history = new History();
+        // 获取当前时间的一周的开始与结尾
+        Date weekOfBeginTime = MyTimeUtils.getWeekOfBeginTime();
+        Date weekOfEndTime = MyTimeUtils.getWeekOfEndTime();
+        String weekOfBeginTimeStr = DateUtil.formatDate(weekOfBeginTime);
+        String weekOfEndTimeStr = DateUtil.formatDate(weekOfEndTime);
+        history.setTimeRange(weekOfBeginTimeStr + "~" + weekOfEndTimeStr);
+        StringBuilder sb = new StringBuilder();
+        LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.between(Menu::getCreateTime, weekOfBeginTime, weekOfEndTime);
+        List<Menu> menuList = menuService.list(queryWrapper);
+        for (Menu m : menuList) {
+            sb.append(m.getMenuId()).append(",");
+        }
+        history.setMenuIds(sb.substring(0, sb.length() - 1));
+        boolean res = historyService.save(history);
+        log.info("自动收集历史菜单：{}", res ? "成功" : "失败");
     }
 }

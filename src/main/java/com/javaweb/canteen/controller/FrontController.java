@@ -2,6 +2,7 @@ package com.javaweb.canteen.controller;
 
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.javaweb.canteen.common.MyTimeUtils;
 import com.javaweb.canteen.entity.*;
 import com.javaweb.canteen.service.BlanketOrderService;
 import com.javaweb.canteen.service.MenuService;
@@ -53,16 +54,10 @@ public class FrontController {
     @GetMapping("/toMain")
     public String toMain(HttpServletRequest request){
         LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
+
         // 获取当前时间的一周开始与一周结束
-        Date weekOfBeginTime;
-        Date weekOfEndTime;
-        if (DateUtil.thisDayOfWeek() == 1) {
-            weekOfBeginTime = DateUtil.beginOfDay(DateUtil.offsetDay(DateUtil.date(),(DateUtil.thisDayOfWeek()-7)));
-            weekOfEndTime = DateUtil.endOfDay(DateUtil.date());
-        }else{
-            weekOfBeginTime = DateUtil.beginOfDay(DateUtil.offsetDay(DateUtil.date(),(2 - DateUtil.thisDayOfWeek())));
-            weekOfEndTime = DateUtil.endOfDay(DateUtil.offsetDay(DateUtil.date(),(8 - DateUtil.thisDayOfWeek())));
-        }
+        Date weekOfBeginTime = MyTimeUtils.getWeekOfBeginTime();
+        Date weekOfEndTime = MyTimeUtils.getWeekOfEndTime();
 
         queryWrapper.between(Menu::getCreateTime, weekOfBeginTime, weekOfEndTime)
                 .orderByDesc(Menu::getCreateTime);
@@ -152,9 +147,8 @@ public class FrontController {
         Long userId = currUser.getUserId();
         // 获取时间
         String month = monDate + "-01";
-        Date date = DateUtil.parse(month);
-        Date begin = DateUtil.beginOfDay(date);
-        Date end = DateUtil.endOfDay(DateUtil.offsetDay(DateUtil.offsetMonth(date, 1), -1));
+        Date begin = MyTimeUtils.getMonthOfBeginTime(month);
+        Date end = MyTimeUtils.getMonthOfEndTime(month);
         // 获取本月所有订单
         LambdaQueryWrapper<OrderForm> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(OrderForm::getUserId, userId)

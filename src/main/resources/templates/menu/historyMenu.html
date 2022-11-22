@@ -11,9 +11,9 @@
         <form class="layui-form" action="">
             <div class="layui-form-item" style="padding-left: 20px">
                 <div class="layui-form-item layui-inline">
-                    <label class="layui-form-label">菜品名</label>
+                    <label class="layui-form-label">时间范围</label>
                     <div class="layui-input-inline">
-                        <input type="text" name="name" placeholder="请输入菜品名" class="layui-input">
+                        <input type="text" name="timeRange" placeholder="yyyy-MM-dd~yyyy-MM-dd" class="layui-input">
                     </div>
                 </div>
                 <div class="layui-form-item layui-inline">
@@ -36,14 +36,10 @@
     </div>
 </div>
 
-<script type="text/html" id="img">
-    {{#if (d.picture == null) { }}
-    <img th:src="@{/picture/None.png}" style="width: 50px; height: 50px" />
-    {{# }else if(d.picture != null){ }}
-    <img src="/picture/{{d.picture}}" style="width: 50px; height: 50px" />
-    {{# } }}
+<script type="text/html" id="user-bar">
+    <button class="pear-btn pear-btn-primary pear-btn-sm" lay-event="detail">详情</button>
+    <button class="pear-btn pear-btn-warming pear-btn-sm" lay-event="select">复用</button>
 </script>
-
 
 <script th:src="@{/component/layui/layui.js}"></script>
 <script th:src="@{/component/pear/pear.js}"></script>
@@ -57,49 +53,29 @@
         let cols = [
             [
                 {
-                    title: '菜品名称',
-                    field: 'name',
+                    title: '历史编号',
+                    field: 'hisId',
                     align: 'center',
-                    width: 120
+                    width: 250
                 },
                 {
-                    title: '分类',
-                    field: 'category',
+                    title: '时间范围',
+                    field: 'timeRange',
                     align: 'center',
-                    width: 100
+                    width: 250
                 },
                 {
-                    title: '计量单位',
-                    field: 'unit',
-                    align: 'center',
-                    width: 100
-                },
-                {
-                    title: '价格',
-                    field: 'price',
-                    align: 'center',
-                    width: 100
-                },
-                {
-                    title: '创建时间',
-                    field: 'createTime',
+                    title: '操作',
+                    toolbar: '#user-bar',
                     align: 'center',
                     width: 180
-                },
-                {
-                    title: '图片',
-                    field: 'picture',
-                    align: 'center',
-                    width: 100,
-                    templet: "#img",
-                    style: 'height:50px;'
                 }
             ]
         ]
 
         table.render({
             elem: '#user-table',
-            url: '/menu/pageAll',
+            url: '/history/page',
             page: true,
             parseData:function(res) {
                 return {
@@ -113,11 +89,7 @@
             skin: 'line',
             limits: [10, 20],
             toolbar: '#user-toolbar',
-            defaultToolbar: [{
-                title: '刷新',
-                layEvent: 'refresh',
-                icon: 'layui-icon-refresh',
-            }, 'filter', 'print', 'exports']
+            defaultToolbar: ['filter', 'print', 'exports']
         });
 
         form.on('submit(user-query)', function(data) {
@@ -126,6 +98,52 @@
             })
             return false;
         });
+
+        table.on('tool(user-table)', function(obj) {
+            if (obj.event === 'detail') {
+                window.detail(obj);
+            }else if (obj.event === 'select') {
+
+                layer.confirm('确定要复用这些菜品到下一周吗', {
+                    icon: 3,
+                    title: '提示'
+                }, function(index) {
+                    layer.close(index);
+                    let loading = layer.load();
+                    $.ajax({
+                        url: "/menu/multiplex/" + obj.data['menuIds'],
+                        dataType: 'json',
+                        type: 'post',
+                        success: function(result) {
+                            layer.close(loading);
+                            if (result.code === 200) {
+                                layer.msg(result.data, {
+                                    icon: 1,
+                                    time: 1000
+                                }, function() {
+                                    table.reload('user-table');
+                                });
+                            } else {
+                                layer.msg(result.msg, {
+                                    icon: 2,
+                                    time: 3000
+                                });
+                            }
+                        }
+                    })
+                });
+            }
+        });
+
+        window.detail = function(obj) {
+            layer.open({
+                type: 2,
+                title: '菜品详情',
+                shade: 0.1,
+                area: ['800px', '400px'],
+                content: '/back/toHistoryDetail/' + obj.data['menuIds']
+            });
+        }
 
         window.refresh = function(param) {
             table.reload('user-table');

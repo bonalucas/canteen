@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.javaweb.canteen.common.MyTimeUtils;
 import com.javaweb.canteen.common.R;
 import com.javaweb.canteen.entity.BlanketOrder;
 import com.javaweb.canteen.entity.MyUser;
@@ -63,7 +64,6 @@ public class OrderController {
         orderForm.setName(currUser.getUsername());
         orderForm.setOrderTime(now);
         orderForm.setTelephone(currUser.getTelephone());
-        orderForm.setState(0); // 表示未出餐
 
         // 将订单信息加入订单中并将购物车信息加入总括订单
         boolean res = orderFormService.save(orderForm);
@@ -97,21 +97,20 @@ public class OrderController {
     /**
      * 订单分页接口
      */
-    @GetMapping("/page/{state}")
-    public R<Page<OrderForm>> page(@PathVariable Integer state, int page, int limit,
+    @GetMapping("/page")
+    public R<Page<OrderForm>> page(int page, int limit,
                                    @RequestParam(required = false) String name,
                                    @RequestParam(required = false) String orderTime){
         Page<OrderForm> pageInfo = new Page<>(page, limit);
 
         LambdaQueryWrapper<OrderForm> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(state != null, OrderForm::getState, state)
-                .like(StrUtil.isNotEmpty(name), OrderForm::getName, name)
+        queryWrapper.like(StrUtil.isNotEmpty(name), OrderForm::getName, name)
                 .orderByDesc(OrderForm::getOrderTime);
-        // 处理时间
+
+        // 处理当前这一天的订单
         if (orderTime != null && StrUtil.isNotEmpty(orderTime)) {
-            Date date = DateUtil.parse(orderTime);
-            Date begin = DateUtil.beginOfDay(date);
-            Date end = DateUtil.endOfDay(DateUtil.offsetDay(DateUtil.offsetMonth(date, 1), -1));
+            Date begin = MyTimeUtils.getDayBeginOfTime(orderTime);
+            Date end = MyTimeUtils.getDayEndOfTime(orderTime);
             // 加入时间查找
             queryWrapper.between(OrderForm::getOrderTime, begin, end);
         }
@@ -123,19 +122,19 @@ public class OrderController {
     /**
      * 订单状态更改接口
      */
-    @PreAuthorize("hasAnyRole('chef','caterer')")
-    @PutMapping("/updateState/{state}/{orderId}")
-    public R<String> updateState(@PathVariable Long orderId, @PathVariable Integer state){
-        LambdaUpdateWrapper<OrderForm> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(orderId != null, OrderForm::getOrderId, orderId)
-                .set(OrderForm::getState, state + 1);
-        boolean res = orderFormService.update(null, updateWrapper);
-        if (res) {
-            return R.success("状态更新成功");
-        }else{
-            return R.fail("状态更新失败");
-        }
-    }
+//    @PreAuthorize("hasAnyRole('chef','caterer')")
+//    @PutMapping("/updateState/{state}/{orderId}")
+//    public R<String> updateState(@PathVariable Long orderId, @PathVariable Integer state){
+//        LambdaUpdateWrapper<OrderForm> updateWrapper = new LambdaUpdateWrapper<>();
+//        updateWrapper.eq(orderId != null, OrderForm::getOrderId, orderId)
+//                .set(OrderForm::getState, state + 1);
+//        boolean res = orderFormService.update(null, updateWrapper);
+//        if (res) {
+//            return R.success("状态更新成功");
+//        }else{
+//            return R.fail("状态更新失败");
+//        }
+//    }
 
     /**
      * 订单详情接口

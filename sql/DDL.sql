@@ -30,7 +30,6 @@ CREATE TABLE root.orderForm (
     telephone	VARCHAR2(25)	NOT NULL,
     orderTime	DATE			NOT NULL,
     orderPrice	NUMBER(18)		NOT NULL,
-    state		NUMBER(1)		DEFAULT 0,		-- 0表示未出餐, 1表示未配送, 2表示已完成
     Constraint PK_ORDERFORM_ORDERID primary key(orderId)  -- 主键
 );
 
@@ -56,6 +55,14 @@ CREATE TABLE root.menu (
     price		NUMBER(18)		NOT NULL,
     createTime	DATE			NOT NULL,
     Constraint PK_MENU_MENUID primary key(menuId)  -- 主键
+);
+
+-- 历史菜单表
+CREATE TABLE root.history (
+    hisId		    NUMBER(19),
+    timeRange       VARCHAR(50)     NOT NULL,
+    menuIds         VARCHAR2(500)   NOT NULL,
+    Constraint PK_SC_HISID primary key(hisId)  -- 主键
 );
 
 -- 总括订单表
@@ -84,21 +91,12 @@ CREATE TABLE root.shopCart (
     Constraint PK_SC_SCID primary key(scId)  -- 主键
 );
 
-
 -- 销售统计表
 CREATE TABLE root.sale (
     saleId		NUMBER(19),
     month		VARCHAR2(25)	NOT NULL,
     totalPrice	NUMBER(18)		NOT NULL,
     Constraint PK_SC_SALEID primary key(saleId)  -- 主键
-);
-
--- 通知表
-CREATE TABLE root.notify (
-   notifyId		NUMBER(19),
-   message		VARCHAR2(500)	NOT NULL,
-   createTime	DATE			NOT NULL,
-   Constraint PK_SC_NFYID primary key(notifyId)  -- 主键
 );
 
 INSERT INTO root.MyUser VALUES (1397849739276890114, 'manager', 'manager', '123456', '男', '15712131178', '财务部', 'manager');

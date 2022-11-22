@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8">
+	<title>菜品详情</title>
+	<link rel="stylesheet" th:href="@{/component/pear/css/pear.css}" />
+</head>
+<body class="pear-container">
+<div class="layui-card">
+	<div class="layui-card-body">
+		<table id="user-table" lay-filter="user-table"></table>
+	</div>
+</div>
+
+<script type="text/html" id="img">
+	{{#if (d.picture == null) { }}
+	<img th:src="@{/picture/None.png}" style="width: 50px; height: 50px" />
+	{{# }else if(d.picture != null){ }}
+	<img src="/picture/{{d.picture}}" style="width: 50px; height: 50px" />
+	{{# } }}
+</script>
+
+<script th:src="@{/component/layui/layui.js}"></script>
+<script th:src="@{/component/pear/pear.js}"></script>
+<script>
+	layui.use(['table', 'form', 'jquery','common'], function() {
+		let table = layui.table;
+		let form = layui.form;
+		let $ = layui.jquery;
+		let common = layui.common;
+
+		let cols = [
+			[
+				{
+					title: '菜品名称',
+					field: 'name',
+					align: 'center',
+					width: 120
+				},
+				{
+					title: '分类',
+					field: 'category',
+					align: 'center',
+					width: 100
+				},
+				{
+					title: '计量单位',
+					field: 'unit',
+					align: 'center',
+					width: 100
+				},
+				{
+					title: '价格',
+					field: 'price',
+					align: 'center',
+					width: 100
+				},
+				{
+					title: '创建时间',
+					field: 'createTime',
+					align: 'center',
+					width: 180
+				},
+				{
+					title: '图片',
+					field: 'picture',
+					align: 'center',
+					width: 100,
+					templet: "#img",
+					style: 'height:50px;'
+				}
+			]
+		]
+
+		table.render({
+			elem: '#user-table',
+			url: '/history/details',
+			page: true,
+			parseData:function(res) {
+				return {
+					"code" : 0,
+					"msg" : "",
+					"count" : res.data.total,
+					"data": res.data.records
+				}
+			},
+			cols: cols,
+			skin: 'line',
+			limits: [20, 30],
+			defaultToolbar: []
+		});
+	})
+</script>
+</body>
+</html>

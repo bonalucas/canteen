@@ -25,6 +25,4 @@ public class OrderForm implements Serializable {
     private Date orderTime;
 
     private Long orderPrice;
-
-    private Integer state;
 }

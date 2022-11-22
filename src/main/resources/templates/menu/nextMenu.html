@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
-    <title>本周菜单</title>
+    <title>下周菜单</title>
     <link rel="stylesheet" th:href="@{/component/pear/css/pear.css}" />
 </head>
 <body class="pear-container">
@@ -37,9 +37,9 @@
 </div>
 
 <script type="text/html" id="user-toolbar">
-    <button class="pear-btn pear-btn-primary pear-btn-md" lay-event="add">
-        <i class="layui-icon layui-icon-add-1"></i>
-        批量复用
+    <button class="pear-btn pear-btn-danger pear-btn-md" lay-event="batchRemove">
+        <i class="layui-icon layui-icon-delete"></i>
+        批量退选
     </button>
 </script>
 
@@ -52,7 +52,7 @@
 </script>
 
 <script type="text/html" id="user-bar">
-    <button class="pear-btn pear-btn-warming pear-btn-sm" lay-event="remove">修改</button>
+    <button class="pear-btn pear-btn-danger pear-btn-sm" lay-event="remove">退选</button>
 </script>
 
 <script th:src="@{/component/layui/layui.js}"></script>
@@ -118,7 +118,7 @@
 
         table.render({
             elem: '#user-table',
-            url: '/menu/pageThisWeek',
+            url: '/menu/pageNextWeek',
             page: true,
             parseData:function(res) {
                 return {
@@ -136,46 +136,8 @@
         });
 
         table.on('toolbar(user-table)', function(obj) {
-            if (obj.event === 'add') {
-
-                var checkIds = common.checkField(obj,'menuId');
-
-                if (checkIds === "") {
-                    layer.msg("未选中数据", {
-                        icon: 3,
-                        time: 1000
-                    });
-                    return false;
-                }
-
-                layer.confirm('确定要复用这些菜品到下一周吗', {
-                    icon: 3,
-                    title: '提示'
-                }, function(index) {
-                    layer.close(index);
-                    let loading = layer.load();
-                    $.ajax({
-                        url: "/menu/multiplex/" + checkIds,
-                        dataType: 'json',
-                        type: 'post',
-                        success: function(result) {
-                            layer.close(loading);
-                            if (result.code === 200) {
-                                layer.msg(result.data, {
-                                    icon: 1,
-                                    time: 1000
-                                }, function() {
-                                    table.reload('user-table');
-                                });
-                            } else {
-                                layer.msg(result.msg, {
-                                    icon: 2,
-                                    time: 3000
-                                });
-                            }
-                        }
-                    })
-                });
+            if (obj.event === 'batchRemove') {
+                window.batchRemove(obj);
             }
         });
 
@@ -194,12 +156,75 @@
 
 
         window.remove = function(obj) {
-            layer.open({
-                type: 2,
-                title: '修改',
-                shade: 0.1,
-                area: ['500px', '400px'],
-                content: '/back/toMenuEdit/' + obj.data['menuId']
+            layer.confirm('确定要退选该菜品', {
+                icon: 3,
+                title: '提示'
+            }, function(index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: "/menu/delete/" + obj.data['menuId'],
+                    dataType: 'json',
+                    type: 'delete',
+                    success: function(result) {
+                        layer.close(loading);
+                        if (result.code === 200) {
+                            layer.msg(result.data, {
+                                icon: 1,
+                                time: 1000
+                            }, function() {
+                                obj.del();
+                            });
+                        } else {
+                            layer.msg(result.msg, {
+                                icon: 2,
+                                time: 1000
+                            });
+                        }
+                    }
+                })
+            });
+        }
+
+        window.batchRemove = function(obj) {
+
+            var checkIds = common.checkField(obj,'menuId');
+
+            if (checkIds === "") {
+                layer.msg("未选中数据", {
+                    icon: 3,
+                    time: 1000
+                });
+                return false;
+            }
+
+            layer.confirm('确定要删除这些菜品', {
+                icon: 3,
+                title: '提示'
+            }, function(index) {
+                layer.close(index);
+                let loading = layer.load();
+                $.ajax({
+                    url: "/menu/deleteBatch/" + checkIds,
+                    dataType: 'json',
+                    type: 'delete',
+                    success: function(result) {
+                        layer.close(loading);
+                        if (result.code === 200) {
+                            layer.msg(result.data, {
+                                icon: 1,
+                                time: 1000
+                            }, function() {
+                                table.reload('user-table');
+                            });
+                        } else {
+                            layer.msg(result.msg, {
+                                icon: 2,
+                                time: 1000
+                            });
+                        }
+                    }
+                })
             });
         }
 

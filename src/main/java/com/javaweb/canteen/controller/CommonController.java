@@ -24,7 +24,7 @@ import java.util.UUID;
 public class CommonController {
 
     /**
-     * 文件上传
+     * 文件上传接口
      */
     @PreAuthorize("hasAnyRole('chef','manager')")
     @PostMapping("/upload")
@@ -66,8 +66,6 @@ public class CommonController {
             lineCaptcha.setGenerator(randomGenerator);
             // 输出到页面
             lineCaptcha.write(response.getOutputStream());
-            // 打印日志
-            log.info("生成的验证码:{}", lineCaptcha.getCode());
             // 存储验证码
             request.getSession().setAttribute("code", lineCaptcha.getCode());
             // 关闭流

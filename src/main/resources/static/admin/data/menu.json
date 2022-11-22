@@ -28,7 +28,7 @@
 		"children": [
 			{
 				"id": 301,
-				"title": "挑选菜单",
+				"title": "挑选下周菜单",
 				"type": 1,
 				"openType": "_iframe",
 				"href": "/back/toAddMenu"
@@ -42,6 +42,13 @@
 			},
 			{
 				"id": 303,
+				"title": "下周菜单",
+				"type": 1,
+				"openType": "_iframe",
+				"href": "/back/toNextMenu"
+			},
+			{
+				"id": 304,
 				"title": "历史菜单",
 				"type": 1,
 				"openType": "_iframe",
@@ -51,27 +58,27 @@
 	},
 	{
 		"id": 4,
-		"title": "订单进度",
+		"title": "订单管理",
 		"icon": "layui-icon layui-icon-form",
 		"type": 0,
 		"children": [
 			{
 				"id": 401,
-				"title": "正在出餐",
+				"title": "厨师专栏",
 				"type": 1,
 				"openType": "_iframe",
 				"href": "/back/toNoMeal"
 			},
 			{
 				"id": 402,
-				"title": "正在配送",
+				"title": "配送员专栏",
 				"type": 1,
 				"openType": "_iframe",
 				"href": "/back/toUndelivered"
 			},
 			{
 				"id": 403,
-				"title": "已完成",
+				"title": "历史订单",
 				"type": 1,
 				"openType": "_iframe",
 				"href": "/back/toCompleted"

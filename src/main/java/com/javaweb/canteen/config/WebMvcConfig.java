@@ -1,8 +1,6 @@
 package com.javaweb.canteen.config;
 
 import com.javaweb.canteen.common.JacksonObjectMapper;
-import com.javaweb.canteen.interceptor.ManagerMenuInterceptor;
-import com.javaweb.canteen.interceptor.StaffOrderInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -69,6 +67,5 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
     @Override
     protected void addInterceptors(InterceptorRegistry registry) {
 //        registry.addInterceptor(new StaffOrderInterceptor()).addPathPatterns("/order/submit");
-//        registry.addInterceptor(new ManagerMenuInterceptor()).addPathPatterns("/menu/add/**");
     }
 }

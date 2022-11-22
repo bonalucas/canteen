@@ -36,9 +36,9 @@ tab:
   max: "10"
 ## 首页
   index: 
-    id: "10" ## 标识 ID , 建议与菜单项中的 ID 一致
-    href: "/back/toHome" ## 页面地址
-    title: "首页" ## 标题
+    id: "0" ## 标识 ID , 建议与菜单项中的 ID 一致
+    href: "/back/toPerson" ## 页面地址
+    title: "个人信息" ## 标题
 ## 主题配置
 theme: 
   ## 默认主题色，对应 colors 配置中的 ID 标识

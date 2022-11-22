@@ -1,10 +1,10 @@
 package com.javaweb.canteen.controller;
 
+import com.javaweb.canteen.entity.Menu;
 import com.javaweb.canteen.entity.MyUser;
-import com.javaweb.canteen.entity.Notify;
 import com.javaweb.canteen.entity.Recipe;
+import com.javaweb.canteen.service.MenuService;
 import com.javaweb.canteen.service.MyUserService;
-import com.javaweb.canteen.service.NotifyService;
 import com.javaweb.canteen.service.RecipeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 @Slf4j
 @Controller
@@ -27,7 +26,7 @@ public class BackController {
     private RecipeService recipeService;
 
     @Autowired
-    private NotifyService notifyService;
+    private MenuService menuService;
 
     /**
      * 跳转用户管理页面
@@ -53,6 +52,7 @@ public class BackController {
     @PreAuthorize("hasRole('manager')")
     @GetMapping("/back/toUserEdit/{userId}")
     public String toUserEdit(@PathVariable Long userId, HttpServletRequest request){
+        // 根据用户Id查询用户信息
         MyUser user = myUserService.getById(userId);
         request.getSession().removeAttribute("editUser");
         request.getSession().setAttribute("editUser", user);
@@ -65,6 +65,7 @@ public class BackController {
     @PreAuthorize("hasAnyRole('chef','manager')")
     @GetMapping("/back/toRecipeEdit/{recipeId}")
     public String toRecipeEdit(@PathVariable Long recipeId, HttpServletRequest request){
+        // 根据食谱Id查询对应食谱信息
         Recipe recipe = recipeService.getById(recipeId);
         request.getSession().removeAttribute("editRecipe");
         request.getSession().setAttribute("editRecipe", recipe);
@@ -72,7 +73,7 @@ public class BackController {
     }
 
     /**
-     * 挑选菜单页面跳转
+     * 挑选下周菜单页面跳转
      */
     @PreAuthorize("hasRole('manager')")
     @GetMapping("/back/toAddMenu")
@@ -90,12 +91,43 @@ public class BackController {
     }
 
     /**
+     * 修改菜单信息页面跳转
+     */
+    @PreAuthorize("hasRole('manager')")
+    @GetMapping("/back/toMenuEdit/{menuId}")
+    public String toMenuEdit(@PathVariable Long menuId, HttpServletRequest request){
+        // 根据食谱Id查询对应食谱信息
+        Menu menu = menuService.getById(menuId);
+        request.getSession().removeAttribute("editMenu");
+        request.getSession().setAttribute("editMenu", menu);
+        return "menu/edit";
+    }
+
+    /**
+     * 下周菜单页面跳转
+     */
+    @PreAuthorize("hasRole('manager')")
+    @GetMapping("/back/toNextMenu")
+    public String toNextMenu(){
+        return "menu/nextMenu";
+    }
+
+    /**
      * 历史菜单页面跳转
      */
     @PreAuthorize("hasRole('manager')")
     @GetMapping("/back/toHistoryMenu")
     public String toHistoryMenu(){
         return "menu/historyMenu";
+    }
+
+    /**
+     * 历史详情页面跳转
+     */
+    @GetMapping("/back/toHistoryDetail/{menuIds}")
+    public String toHistoryDetail(@PathVariable String menuIds, HttpServletRequest request){
+        request.getSession().setAttribute("hisMenuIds", menuIds);
+        return "menu/details";
     }
 
     /**
@@ -150,15 +182,5 @@ public class BackController {
     public String toSaleDetails(@PathVariable String month, HttpServletRequest request){
         request.getSession().setAttribute("month", month);
         return "sale/details";
-    }
-
-    /**
-     * 首页页面跳转
-     */
-    @GetMapping("/back/toHome")
-    public String toHome(HttpServletRequest request){
-        List<Notify> notifyList = notifyService.list();
-        request.getSession().setAttribute("notifyList", notifyList);
-        return "home/home";
     }
 }

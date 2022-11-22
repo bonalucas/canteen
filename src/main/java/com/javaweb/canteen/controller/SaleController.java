@@ -1,10 +1,10 @@
 package com.javaweb.canteen.controller;
 
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.javaweb.canteen.common.MyTimeUtils;
 import com.javaweb.canteen.common.R;
 import com.javaweb.canteen.entity.BlanketOrder;
 import com.javaweb.canteen.entity.Sale;
@@ -58,9 +58,8 @@ public class SaleController {
         QueryWrapper<BlanketOrder> queryWrapper = new QueryWrapper<>();
         if (StrUtil.isNotEmpty(month)){
             month = month + "-01";
-            Date date = DateUtil.parse(month);
-            Date begin = DateUtil.beginOfDay(date);
-            Date end = DateUtil.endOfDay(DateUtil.offsetDay(DateUtil.offsetMonth(date, 1), -1));
+            Date begin = MyTimeUtils.getMonthOfBeginTime(month);
+            Date end = MyTimeUtils.getMonthOfEndTime(month);
             queryWrapper.between("createTime", begin, end);
         }
         queryWrapper.select("name, unit, sum(weight) as weight, price, sum(totalPrice) as totalPrice");

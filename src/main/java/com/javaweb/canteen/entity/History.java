@@ -8,15 +8,15 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Data
-@TableName("notify")
-public class Notify implements Serializable {
+@TableName("history")
+public class History implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @TableId
-    private Long notifyId;
+    private Long hisId;
 
-    private String message;
+    private String timeRange;
 
-    private Date createTime;
+    private String menuIds;
 }
