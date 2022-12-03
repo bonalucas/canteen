@@ -88,7 +88,9 @@ public class MyScheduleTask {
         Date weekOfEndTime = MyTimeUtils.getWeekOfEndTime();
         String weekOfBeginTimeStr = DateUtil.formatDate(weekOfBeginTime);
         String weekOfEndTimeStr = DateUtil.formatDate(weekOfEndTime);
+        // 设置时间范围
         history.setTimeRange(weekOfBeginTimeStr + "~" + weekOfEndTimeStr);
+        // 设置menuIds 通过字符串拼接这一周的所有菜单编号
         StringBuilder sb = new StringBuilder();
         LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.between(Menu::getCreateTime, weekOfBeginTime, weekOfEndTime);
@@ -97,6 +99,7 @@ public class MyScheduleTask {
             sb.append(m.getMenuId()).append(",");
         }
         history.setMenuIds(sb.substring(0, sb.length() - 1));
+        // 加入数据库
         boolean res = historyService.save(history);
         log.info("自动收集历史菜单：{}", res ? "成功" : "失败");
     }

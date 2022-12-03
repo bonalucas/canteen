@@ -41,6 +41,7 @@ public class CommonController {
 
         // 转储文件
         try {
+            // basePath使用绝对路径指定存储位置
             String basePath = "C:\\Users\\30141\\IdeaProjects\\canteen\\picture\\";
             file.transferTo(new File(basePath + fileName));
         } catch (IOException e) {

@@ -8,6 +8,9 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * 用户点餐拦截器
+ */
 public class StaffOrderInterceptor implements HandlerInterceptor {
     /**
      * 用户点餐前加入拦截器，判断当前时间是否在九点之后

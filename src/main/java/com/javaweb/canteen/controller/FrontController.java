@@ -1,5 +1,6 @@
 package com.javaweb.canteen.controller;
 
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.poi.excel.ExcelUtil;
@@ -24,6 +25,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
+/**
+ * 前台业务加视图控制器
+ */
 @Slf4j
 @Controller
 @RequestMapping("/front")
@@ -42,7 +46,7 @@ public class FrontController {
     private BlanketOrderService blanketOrderService;
 
     /**
-     * 登出接口并跳转至登陆页面
+     * 跳转登出页面（即登录页面）
      */
     @GetMapping("/logout")
     public String logout(HttpServletRequest request){
@@ -52,7 +56,7 @@ public class FrontController {
     }
 
     /**
-     * 首页页面跳转
+     * 跳转首页
      */
     @GetMapping("/toMain")
     public String toMain(HttpServletRequest request){
@@ -72,7 +76,7 @@ public class FrontController {
     }
 
     /**
-     * 菜品详情页面跳转
+     * 跳转菜品详情页面
      */
     @GetMapping("/toDetail/{menuId}")
     public String toDetail(@PathVariable Long menuId, HttpServletRequest request){
@@ -82,7 +86,7 @@ public class FrontController {
     }
 
     /**
-     * 购物车页面跳转
+     * 跳转购物车页面
      */
     @GetMapping("/toShopCart")
     public String toShopCart(){
@@ -90,7 +94,7 @@ public class FrontController {
     }
 
     /**
-     * 个人信息页面跳转
+     * 跳转个人信息页面
      */
     @GetMapping("/toInfo")
     public String toInfo() {
@@ -98,15 +102,19 @@ public class FrontController {
     }
 
     /**
-     * 订单页面跳转
+     * 跳转订单页面
      */
     @GetMapping("/toOrder")
     public String toOrder(HttpServletRequest request) {
         MyUser currUser = (MyUser) request.getSession().getAttribute("currUser");
         Long userId = currUser.getUserId();
-        // 获取所有订单
+        // 获取当天订单
+        // 获取当天时间
+        Date begin = DateUtil.beginOfDay(DateUtil.date());
+        Date end = DateUtil.endOfDay(DateUtil.date());
         LambdaQueryWrapper<OrderForm> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(OrderForm::getUserId, userId);
+        queryWrapper.between(OrderForm::getOrderTime, begin, end);
         List<OrderForm> orderList = orderFormService.list(queryWrapper);
         // 存入session
         request.getSession().setAttribute("orderList", orderList);
@@ -117,7 +125,7 @@ public class FrontController {
     }
 
     /**
-     * 确认订单页面跳转
+     * 跳转确认订单页面
      */
     @GetMapping("/toOrderConfirm")
     public String toOrderConfirm(HttpServletRequest request) {
@@ -139,7 +147,7 @@ public class FrontController {
     }
 
     /**
-     * 月度订单页面跳转
+     * 跳转月度订单页面
      */
     @GetMapping("/toMonOrder")
     public String toMonOrder(HttpServletRequest request){
@@ -177,12 +185,15 @@ public class FrontController {
      */
     @GetMapping("/print")
     public void print(HttpServletResponse response, HttpServletRequest request){
+        // 获取到查询出的用户信息、月份、总价格、总括订单信息
         MyUser currUser = (MyUser) request.getSession().getAttribute("currUser");
         String monDate = (String) request.getSession().getAttribute("monDate");
         Long monTotalPrice = (Long) request.getSession().getAttribute("monTotalPrice");
         List<BlanketOrder> monBlanketOrderList = (List<BlanketOrder>) request.getSession().getAttribute("monBlanketOrderList");
+        // 声明输出流
         ServletOutputStream out = null;
         try (ExcelWriter writer = ExcelUtil.getWriter()) {
+            // 封装格式
             writer.merge(4, "员工月度订单汇总");
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("员工", currUser.getName());
@@ -209,7 +220,7 @@ public class FrontController {
             response.setContentType("application/vnd.ms-excel;charset=utf-8");
             response.setHeader("Content-Disposition", "attachment;filename=monOrder.xls");
             out = response.getOutputStream();
-            writer.flush(out, true);
+            writer.flush(out, true);    // 输出
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

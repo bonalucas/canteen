@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * 后台视图跳转控制器
+ */
 @Slf4j
 @Controller
 public class BackController {
@@ -28,6 +31,27 @@ public class BackController {
     @Autowired
     private MenuService menuService;
 
+
+    // 个人页面视图跳转 (权限：无)
+
+    /**
+     * 跳转个人信息页面
+     */
+    @GetMapping("/back/toPerson")
+    public String toPerson(){
+        return "user/person";
+    }
+
+    /**
+     * 跳转修改个人信息页面
+     */
+    @GetMapping("/back/toUpdatePwd")
+    public String toUpdatePwd(){
+        return "user/pwd";
+    }
+
+    // 用户管理视图跳转 (权限：食堂经理)
+
     /**
      * 跳转用户管理页面
      */
@@ -38,16 +62,16 @@ public class BackController {
     }
 
     /**
-     * 跳转食谱管理页面
+     * 跳转添加用户页面
      */
-    @PreAuthorize("hasAnyRole('chef','manager')")
-    @GetMapping("/back/toRecipe")
-    public String toRecipe(){
-        return "recipe/recipe";
+    @PreAuthorize("hasRole('manager')")
+    @GetMapping("/back/toUserAdd")
+    public String toUserAdd(){
+        return "user/add";
     }
 
     /**
-     * 修改用户信息页面跳转
+     * 跳转修改用户页面
      */
     @PreAuthorize("hasRole('manager')")
     @GetMapping("/back/toUserEdit/{userId}")
@@ -59,8 +83,28 @@ public class BackController {
         return "user/edit";
     }
 
+    // 食谱管理视图跳转 (权限：食堂经理、食堂大厨)
+
     /**
-     * 修改食谱信息页面跳转
+     * 跳转食谱管理页面
+     */
+    @PreAuthorize("hasAnyRole('chef','manager')")
+    @GetMapping("/back/toRecipe")
+    public String toRecipe(){
+        return "recipe/recipe";
+    }
+
+    /**
+     * 跳转添加食谱页面
+     */
+    @PreAuthorize("hasAnyRole('chef','manager')")
+    @GetMapping("/back/toRecipeAdd")
+    public String toRecipeAdd(){
+        return "recipe/add";
+    }
+
+    /**
+     * 跳转修改食谱页面
      */
     @PreAuthorize("hasAnyRole('chef','manager')")
     @GetMapping("/back/toRecipeEdit/{recipeId}")
@@ -72,8 +116,10 @@ public class BackController {
         return "recipe/edit";
     }
 
+    // 菜单管理视图跳转 (权限：食堂经理)
+
     /**
-     * 挑选下周菜单页面跳转
+     * 跳转挑选菜单页面
      */
     @PreAuthorize("hasRole('manager')")
     @GetMapping("/back/toAddMenu")
@@ -82,7 +128,7 @@ public class BackController {
     }
 
     /**
-     * 本周菜单页面跳转
+     * 跳转本周菜单页面
      */
     @PreAuthorize("hasRole('manager')")
     @GetMapping("/back/toMenu")
@@ -91,7 +137,7 @@ public class BackController {
     }
 
     /**
-     * 修改菜单信息页面跳转
+     * 跳转修改菜单页面
      */
     @PreAuthorize("hasRole('manager')")
     @GetMapping("/back/toMenuEdit/{menuId}")
@@ -104,7 +150,7 @@ public class BackController {
     }
 
     /**
-     * 下周菜单页面跳转
+     * 跳转下周菜单页面
      */
     @PreAuthorize("hasRole('manager')")
     @GetMapping("/back/toNextMenu")
@@ -113,7 +159,7 @@ public class BackController {
     }
 
     /**
-     * 历史菜单页面跳转
+     * 跳转历史菜单页面
      */
     @PreAuthorize("hasRole('manager')")
     @GetMapping("/back/toHistoryMenu")
@@ -122,16 +168,19 @@ public class BackController {
     }
 
     /**
-     * 历史详情页面跳转
+     * 跳转历史详情页面
      */
+    @PreAuthorize("hasRole('manager')")
     @GetMapping("/back/toHistoryDetail/{menuIds}")
     public String toHistoryDetail(@PathVariable String menuIds, HttpServletRequest request){
         request.getSession().setAttribute("hisMenuIds", menuIds);
         return "menu/details";
     }
 
+    // 订单管理视图跳转 (权限：食堂大厨-初始专栏 配送员-配送员专栏 已完成-食堂经理和财务管理)
+
     /**
-     * 厨师专栏订单页面跳转
+     * 跳转厨师专栏订单页面
      */
     @PreAuthorize("hasRole('chef')")
     @GetMapping("/back/toNoMeal")
@@ -140,7 +189,7 @@ public class BackController {
     }
 
     /**
-     * 正在配送订单页面跳转
+     * 跳转配送员专栏订单页面
      */
     @PreAuthorize("hasRole('caterer')")
     @GetMapping("/back/toUndelivered")
@@ -149,7 +198,7 @@ public class BackController {
     }
 
     /**
-     * 已完成订单页面跳转
+     * 跳转已完成订单页面
      */
     @PreAuthorize("hasAnyRole('treasurer','manager')")
     @GetMapping("/back/toCompleted")
@@ -165,6 +214,8 @@ public class BackController {
         request.getSession().setAttribute("detailsId", orderId);
         return "order/details";
     }
+
+    // 月度销售视图跳转 (权限：食堂经理)
 
     /**
      * 月度销售页面跳转

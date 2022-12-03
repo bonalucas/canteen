@@ -5,7 +5,7 @@ import cn.hutool.core.date.DateUtil;
 import java.util.Date;
 
 /**
- * 业务的时间处理工具类
+ * 业务中时间处理工具类
  */
 public class MyTimeUtils {
 

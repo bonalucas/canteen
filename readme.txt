@@ -1,0 +1,23 @@
+项目结构说明：
+    -- picture      文件上传与下载的图片存放位置
+    -- sql          项目数据库文件
+    -- src          项目总代码
+        -- main
+            -- java
+                -- com.javaweb.canteen 项目包结构
+                    -- common                       工具包
+                    -- config                       配置包
+                    -- controller                   控制器包
+                    -- entity                       实体包
+                    -- exception                    异常包
+                    -- interceptor                  拦截器包
+                    -- mapper                       dao包
+                    -- security                     安全包
+                    -- service                      服务包
+                    -- CanteenApplication.java      启动类
+            -- resources
+                -- static               静态资源
+                -- templates            视图
+                -- application.yml      springboot配置文件
+                -- banner.txt           启动页面图标
+    -- pom.xml      maven依赖

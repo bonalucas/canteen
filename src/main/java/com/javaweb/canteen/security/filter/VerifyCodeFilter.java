@@ -14,6 +14,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * 验证码校验过滤器
+ */
 @Slf4j
 @Component
 public class VerifyCodeFilter extends OncePerRequestFilter {

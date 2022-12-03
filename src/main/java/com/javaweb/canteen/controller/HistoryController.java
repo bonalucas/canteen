@@ -23,12 +23,12 @@ import java.util.Arrays;
 @RestController
 @RequestMapping("/history")
 public class HistoryController {
+
     @Autowired
     private HistoryService historyService;
 
     @Autowired
     private MenuService menuService;
-
 
     /**
      *  历史菜单分页接口
