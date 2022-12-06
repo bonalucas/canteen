@@ -28,7 +28,7 @@
 		"children": [
 			{
 				"id": 301,
-				"title": "挑选下周菜单",
+				"title": "挑选菜单",
 				"type": 1,
 				"openType": "_iframe",
 				"href": "/back/toAddMenu"

@@ -19,7 +19,7 @@ menu:
   ## 顶部菜单宽度 PX
   controlWidth: 500
   ## 默认选中的菜单项
-  select: "10"
+  select: "0"
   ## 是否开启异步菜单，false 时 data 属性设置为静态数据，true 时为后端接口
   async: true
 ## 视图内容配置
@@ -71,7 +71,7 @@ colors:
 ## 其他配置
 other: 
   ## 主页动画时长
-  keepLoad: "1000"
+  keepLoad: "500"
   ## 布局顶部主题
   autoHead: false
   ## 页脚
