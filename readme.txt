@@ -1,3 +1,7 @@
+启动说明：
+    需要在config -> WebMvcConfig中的 设置静态资源映射 将 file:C:/Users/30141/IdeaProjects/canteen/picture/改成当前项目的picture对应的本地路径
+    需要将controller -> CommonController中的文件上传接口中将 C:\Users\30141\IdeaProjects\canteen\picture\ 改成当前项目的picture对应的本地路径
+
 项目结构说明：
     -- picture      文件上传与下载的图片存放位置
     -- sql          项目数据库文件
