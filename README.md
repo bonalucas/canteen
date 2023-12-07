@@ -1,5 +1,12 @@
-# Canteen
+# Title
 
+Canteen 
+
+一款基于 SpringBoot + MyBatis-Plus + Oracle + SpringSecurity + Layui 开发的餐厅网络点餐系统
+
+## Aim
+
+```
 项目需求：
 
 一个企业内的餐厅，需要实现内部网络自动订餐系统，系统基本功能如下：
@@ -15,17 +22,36 @@
 5. 每月1号系统会自动进行统计工作，按照月度统计餐厅售出的菜品数量，总金额等信息，餐厅经理和财务管理也可以单独列出某位用户每月的所有订餐记录。
 
 6. 内部食谱可以餐厅经理和厨房主管进行管理，删除或修改一个库中的菜式信息不能影响已有的点餐单，菜单或订餐记录。
+```
 
+## Environment
 
+```
+- JDK 11
+- SpringBoot 2.7.4
+- MyBatis Plus 3.5.2
+- SpringSecurity
+- Oracle
+```
 
-启动说明：
+## Usage
 
-- 需要在config -> WebMvcConfig中的 设置静态资源映射 将 file:C:/Users/30141/IdeaProjects/canteen/picture/改成当前项目的picture对应的本地路径
-- 需要将controller -> CommonController中的文件上传接口中将 C:\Users\30141\IdeaProjects\canteen\picture\ 改成当前项目的picture对应的本地路径
+### clone
 
+```
+git clone https://github.com/bonalucas/canteen.git
+```
 
+### configuration
 
-项目结构：
+启动说明
+
+```
+1. 需要在config -> WebMvcConfig中的 设置静态资源映射 将 file:C:/Users/30141/IdeaProjects/canteen/picture/改成当前项目的picture对应的本地路径
+2. 需要将controller -> CommonController中的文件上传接口中将 C:\Users\30141\IdeaProjects\canteen\picture\ 改成当前项目的picture对应的本地路径
+```
+
+### Tree
 
 ```
 -- picture      文件上传与下载的图片存放位置
@@ -51,3 +77,17 @@
             -- banner.txt           启动页面图标
 -- pom.xml      maven依赖
 ```
+
+## Example
+
+![pic01.png](doc/pic01.png "pic01.png")
+![pic02.png](doc/pic02.png "pic02.png")
+![pic03.png](doc/pic03.png "pic03.png")
+![pic04.png](doc/pic04.png "pic04.png")
+![pic05.png](doc/pic05.png "pic05.png")
+![pic06.png](doc/pic06.png "pic06.png")
+
+## License
+
+Apache-2.0 license
+
